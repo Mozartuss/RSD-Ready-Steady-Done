@@ -1,0 +1,129 @@
+﻿@model TodoWebProjekt.ViewModel.LoginViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<form method="post" class="text-center" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <p class="h4 my-4">Sign in</p>
+
+    <div class="input-group mb-4">
+        <div class=" input-group-prepend">
+            <span class="input-group-text" id="username-addon"><i class="fa fa-user"></i></span>
+        </div>
+
+        <input asp-for="Email" type="email" id="Email" class="form-control" placeholder="E-mail" aria-label="Username" aria-describedby="username-addon">
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="input-group mb-3">
+        <div class=" input-group-prepend">
+            <span class="input-group-text" id="password-addon"><i class="fa fa-key"></i></span>
+        </div>
+
+        <input asp-for="Password" type="password" id="Password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon">
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="custom-control custom-switch mb-3">
+        <input asp-for="RememberMe" type="checkbox" class="custom-control-input" id="rememberMe">
+        <label class="custom-control-label" for="rememberMe">Remember me</label>
+    </div>
+
+    <button class="btn btn-info mb-2 btn-block" type="submit">Login</button>
+</form>
+
+<h6 style="margin-top:0.5rem; text-align:center; vertical-align: central">or</h6>
+
+<!--External Login-->
+
+<form method="post" asp-action="ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" class="text-center" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;">
+
+    <button type="submit" class="btn social-button mb-2 btn-block" id="google-connect" name="provider" value="Google">
+        <span>Login with Google</span>
+    </button>
+
+    <button type="submit" class="btn social-button mb-2 btn-block" id="facebook-connect" name="provider" value="Facebook">
+        <span>Login with Facebook</span>
+    </button>
+
+    <button type="submit" class="btn social-button mb-2 btn-block" id="twitter-connect" name="provider" value="Twitter">
+        <span>Login with Twitter</span>
+    </button>
+</form>
+
+<div id="verifyEmailDialog" class="modal fade">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #101820FF;">
+                <div class="icon-box" style="color: #FEE715FF">
+                    <i class="fa fa-3x fa-envelope-open-text"></i>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <h4>Please verify !</h4>
+                <p>
+                    Thanks for joining! <br />
+                    We sent you an email to <b>@TempData["Email"]</b> <br /> Please verify your email address.
+                </p>
+                <button class="btn btn-success" style="background-color: #FEE715FF; color:#101820FF; border: 2px solid #101820FF;" data-dismiss="modal"><span style="-webkit-text-stroke:medium"> Ok </span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="emailConfirmed" class="modal fade">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #47c9a2;">
+                <div class="icon-box">
+                    <i class="fa fa-3x fa-check"></i>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <h4>Awesome!</h4>
+                <p>your email address has been successfully verified !</p>
+                <button class="btn btn-success" data-dismiss="modal"><span>Start Exploring</span> <i class="fa fa-angle-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["EmailConfirmation"] != null && (bool)TempData["EmailConfirmation"])
+{
+    @section Scripts {
+        <script>
+            $(function () {
+                $("#emailConfirmed").modal('show');
+                window.onclick = function (event) {
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                }
+            });
+        </script>
+    }
+
+}
+
+@if (TempData["IsEmailSent"] != null && (bool)TempData["IsEmailSent"])
+{
+    @section Scripts {
+        <script>
+            $(function () {
+                $("#verifyEmailDialog").modal('show');
+                window.onclick = function (event) {
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                }
+            });
+        </script>
+    }
+
+}

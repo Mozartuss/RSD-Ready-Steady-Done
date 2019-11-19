@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29326.143
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoWebProjekt.Test", "TodoWebProjekt.Test\TodoWebProjekt.Test.csproj", "{A582AAFE-C0E2-4F15-A791-E719A366D55A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoWebProjekt", "TodoWebProject\TodoWebProjekt.csproj", "{F2F84B16-5BD0-484A-AECD-7438403F730F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A582AAFE-C0E2-4F15-A791-E719A366D55A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A582AAFE-C0E2-4F15-A791-E719A366D55A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A582AAFE-C0E2-4F15-A791-E719A366D55A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A582AAFE-C0E2-4F15-A791-E719A366D55A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2F84B16-5BD0-484A-AECD-7438403F730F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2F84B16-5BD0-484A-AECD-7438403F730F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2F84B16-5BD0-484A-AECD-7438403F730F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2F84B16-5BD0-484A-AECD-7438403F730F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BA719117-0BC5-4C3D-986A-9B0F4274304E}
+	EndGlobalSection
+EndGlobal

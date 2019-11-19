@@ -1,0 +1,114 @@
+﻿@using TodoWebProjekt.Authorization
+@model TodoWebProjekt.ViewModel.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<h1>Profile</h1>
+
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - Todos</title>
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet"/>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:200,400,700" rel="stylesheet">
+</head>
+<body>
+
+
+<form method="post">
+    <div class="col text-center">
+        <div class="card-img">
+            <div class="card-body ">
+                <img src="~/placeholder/placeholder_avatar.jpg" class="profile-avatar" alt="User avatar">
+            </div>
+
+            @*@foreach (var item in Model.OnlineUsers)
+                    {
+                        <h6>@Html.DisplayFor(modelItem => item.Result.FullName)</h6>
+                    }*@
+
+            @if (User.IsInRole(Constants.AdminRole))
+            {
+                <h4 style="color: red">Administrator</h4>
+            }
+
+        </div>
+
+        <div class="card ">
+            <div class="card-header">
+                <h4 class="card-title">Contact info</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-row" style="margin-bottom: 1rem">
+                    <div class="col text-left">
+                        <label style="padding-left: 15px" for="FirstName">First name</label>
+                        <div class="col">
+                            <input asp-for="FirstName" type="text" class="form-control" id="FirstName">
+                        </div>
+                    </div>
+                    <div class="col text-left">
+                        <label style="padding-left: 15px" for="LastName">Last name</label>
+                        <div class="col">
+                            <input asp-for="LastName" type="text" class="form-control" id="LastName">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group  text-left">
+                    <label style="padding-left: 15px" for="MobileNumber">Mobile number</label>
+                    <div class="col">
+                        <input asp-for="Mobile" type="tel" class="form-control" id="MobileNumber">
+                    </div>
+                </div>
+                <div class="form-group text-left">
+                    <label style="padding-left: 15px" for="Email">E-mail address</label>
+                    <div class="col">
+                        <input asp-for="Email" type="email" class="form-control" id="Email">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card ">
+            <div class="card-header">
+                <h4 class="card-title">Security</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group text-left">
+                    <label style="padding-left: 15px" for="CurrentPassword">Current password</label>
+                    <div class="col">
+                        <input asp-for="OldPassword" type="password" class="form-control" id="CurrentPassword">
+                        <span asp-validation-for="OldPassword" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group text-left">
+                    <label style="padding-left: 15px" for="NewPassword">New password</label>
+                    <div class="col">
+                        <input asp-for="Password" type="password" class="form-control" id="NewPassword">
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group text-left">
+                    <label style="padding-left: 15px" for="PasswordConfirmation">Confirm password</label>
+                    <div class="col">
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" id="PasswordConfirmation">
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col text-left">
+                        <button type="submit" class="btn btn-primary">Edit</button>
+                        <button type="submit" class="btn btn-outline-danger" asp-controller="Todo" asp-action="Index">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+</body>

@@ -1,0 +1,387 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using TodoWebProjekt.Authorization
+@model TodoWebProjekt.ViewModel.IndexViewModel
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IAuthorizationService AuthorizationService
+
+
+@{
+    ViewBag.Title = "TODOS";
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <h2 style="font-stretch: semi-condensed; text-align: center;">TODOS</h2>
+
+    <h5 style="font-stretch: semi-condensed; text-align: center;" id="OnlineUsers"></h5>
+    <br />
+    <br />
+    <div class="container">
+        <div>
+            <div style="float: left">
+                <a asp-controller="Todo" asp-action="Create" class="btn btn-success" m-1>Add</a>
+            </div>
+            <div style="float: right;">
+                <form asp-controller="Todo" asp-action="Index" class="form-inline my-2 my-lg-0" method="get" asp-route-pageSize="@ViewData["CurrentPageSize"]">
+                    <div class="input-group" style="margin-right: 5px">
+                        <div class="btn-group" id="radioBtn">
+                            @{
+                                var all = string.IsNullOrEmpty((string)ViewData["CurrentSort"]) ? "active" : "notActive";
+                                var important = ViewData["currentSort"] == "NotImportant" ? "active" : "notActive";
+                                var doing = ViewData["currentSort"] =="Done" ? "active" : "notActive";
+                                var done =  ViewData["currentSort"] =="Doing" ? "active" : "notActive";
+                            }
+
+                            <a class="btn btn-secondary @all"
+                               data-title="All"
+                               asp-action="Index"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                               asp-route-sortOrder=""
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                                All
+                            </a>
+
+                            <a class="btn btn-danger @important"
+                               data-title="Important"
+                               asp-action="Index"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                               asp-route-sortOrder="@ViewData["ImportantFilter"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                                Important
+                            </a>
+
+                            <a class="btn btn-primary @doing"
+                               data-title="Doing"
+                               asp-action="Index"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                               asp-route-sortOrder="@ViewData["StatusFilter"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                                Doing
+                            </a>
+
+                            <a class="btn btn-success @done"
+                               data-title="Done"
+                               asp-action="Index"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                               asp-route-sortOrder="@ViewData["StatusFilter"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                                Done
+                            </a>
+                        </div>
+                    </div>
+
+                    <div style="margin-right: 5px">
+                        <input id="searchString" class="form-control" type="search" name="searchString" placeholder="Title Search..." value="@ViewData["CurrentFilter"]">
+                    </div>
+                    <button type="submit" class="btn btn-secondary" asp-route-pageSize="@ViewData["CurrentPageSize"]">Search</button>
+
+                </form>
+            </div>
+        </div>
+        <br />
+        <br />
+
+        <table id="table" class="table">
+            <thead>
+                <tr>
+                    <th style="width:451px; min-width: 400px">
+                        <a asp-action="Index"
+                           asp-route-sortOrder="@ViewData["TitleSortParam"]"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="@ViewData["CurrentPageSize"]">
+                            Title
+                        </a>
+                    </th>
+                    <th>
+                        <a asp-action="Index"
+                           asp-route-sortOrder="@ViewData["AuthorSortParam"]"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="@ViewData["CurrentPageSize"]">
+                            Author
+                        </a>
+                    </th>
+                    <th>
+                        <a asp-action="Index"
+                           asp-route-sortOrder="@ViewData["AssignSortParam"]"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-pageSize="@ViewData["CurrentPageSize"]">
+                            Assign
+                        </a>
+                    </th>
+                    <th style="min-width:151px; width:151px">
+                        Status
+                    </th>
+                    <th style="min-width:131px; width:131px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Tasks.Count >= 1)
+                {
+                    @foreach (var item in Model.Tasks)
+                    {
+                        <tr>
+                            <th>@Html.DisplayFor(modelItem => item.Title)</th>
+                            <th>
+                                @if (item.UserId == UserManager.GetUserId(User))
+                                {
+                                    <p style="margin:auto">You</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.UserId).Result.FullName)
+                                }
+                            </th>
+                            <th>
+                                @if (item.AssignUserId == UserManager.GetUserId(User))
+                                {
+                                    <p style="margin:auto">You</p>
+                                }
+                                else if (item.AssignUserId == "null")
+                                {
+                                    <p style="margin:auto">---</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItrem => UserManager.FindByIdAsync(item.AssignUserId).Result.FullName)
+                                }
+                            </th>
+
+                            <th>
+                                @if (item.ActiveStatus == "Doing")
+                                {
+                                    <span class="badge badge-primary">Doing</span>
+                                }
+                                else if (item.ActiveStatus == "Done")
+                                {
+                                    <span class="badge badge-success"> Done</span>
+                                }
+                                @if (item.ImportanceStatus == "Important")
+                                {
+                                    <span class="badge badge-danger"> Important</span>
+                                }
+                            </th>
+
+                            <th>
+                                <div style="float: right;">
+
+                                    @{
+
+                                        string itemUserId = item.UserId;
+                                        string currentUserId = UserManager.GetUserId(User);
+                                        var dis = itemUserId != currentUserId && !User.IsInRole(Constants.AdminRole) ? "disabled" : "";
+                                        var authorized = await AuthorizationService.AuthorizeAsync(User, Model.Tasks, TaskOperations.Delete).ConfigureAwait(false);
+
+                                    }
+                                    <form asp-controller="Todo">
+                                        <a asp-action="Edit" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm @dis" title="Edit"><i class="fa fa-edit"></i> </a>
+                                        <a asp-action="Details" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm" title="Details"><i class="fa fa-eye"></i> </a>
+                                        @if (dis == "" || User.IsInRole(Constants.AdminRole))
+                                        {
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="Delete(@item.TaskId)" title="Delete"><i class="fa fa-trash-alt"></i> </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-danger btn-sm" @dis><i class="fa fa-trash-alt" title="Delete"></i> </button>
+                                        }
+                                    </form>
+                                </div>
+                            </th>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <th colspan="4">
+                            <h3 class="text-center"><b>Oops </b>There is nothing to Show !</h3>
+                            <h4 class="text-center">Please change your filter</h4>
+                        </th>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+        <div>
+            <ul class="pagination">
+
+                @{
+                    var prevDisabled = !Model.Tasks.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.Tasks.HasNextPage ? "disabled" : "";
+                }
+
+                <li class="page-item @prevDisabled">
+                    <a asp-action="Index"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-pageNumber="@(Model.Tasks.PageIndex - 1)"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                       class="page-link"
+                       title="Previous Page">
+                        &laquo; Previous
+                    </a>
+                </li>
+
+                <li class="page-item @nextDisabled">
+                    <a asp-action="Index"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-pageNumber="@(Model.Tasks.PageIndex + 1)"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                       class="page-link"
+                       title="Next Page">
+                        Next &raquo;
+                    </a>
+                </li>
+
+
+                <li>
+                    <div class="btn-group" role="group">
+                        <button id="pageSize" class="page-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Amount of pageitems">
+                            @if ((int)ViewData["CurrentPageSize"] > 10)
+                            {
+                                <span>All</span>
+                            }
+                            else
+                            {
+                                <span>@ViewData["CurrentPageSize"]</span>
+                            }
+
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="pageSize">
+                            <a class="dropdown-item"
+                               asp-route-pageSize="3"
+                               asp-route-sortOrder="@ViewData["AssignSortParam"]"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               title="3">
+                                3
+                            </a>
+                            <a class="dropdown-item" asp-route-pageSize="5" title="5">5</a>
+                            <a class="dropdown-item" asp-route-pageSize="10" title="10">10</a>
+                            <a class="dropdown-item" asp-route-pageSize="0" title="All">All</a>
+                        </div>
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container center">
+        <div>
+            <h1 class="noData">No <br /> Todos <br /> !</h1>
+        </div>
+        <div>
+            <h2 class="noData_login">You have to <a asp-controller="Account" asp-action="Login" title="Login">Login</a> or <a asp-controller="Account" asp-action="Register" title="Register">Register</a></h2>
+        </div>
+    </div>
+}
+
+<div id="deleteDialog" class="modal fade">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #e85e6c;">
+                <div class="icon-box">
+                    <i class="fa fa-3x fa-trash-alt"></i>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <h4>Delete!</h4>
+                <p>Are you sure you want to delete this task ?</p>
+                <button class="btn btn-outline-danger" style="background-color: #47c9a2; margin-right:2em" id="confirm"> <i class="fa fa-lg fa-check"></i></button>
+                <button class="btn btn-outline-secondary" style="background-color: #e85e6c" data-dismiss="modal"><i class="fa fa-lg fa-ban"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="verifyEmailDialog" class="modal fade">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #101820FF;">
+                <div class="icon-box" style="color: #FEE715FF">
+                    <i class="fa fa-3x fa-envelope-open-text"></i>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <h4>Please verify !</h4>
+                <p>
+                    Thanks for joining! <br />
+                    We sent you an email to <b>@TempData["Email"]</b> <br /> Please verify your email address.
+                </p>
+                <button class="btn btn-success" style="background-color: #FEE715FF; color:#101820FF; border: 2px solid #101820FF;" data-dismiss="modal"><span style="-webkit-text-stroke:medium"> Ok </span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="emailConfirmed" class="modal fade">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #47c9a2;">
+                <div class="icon-box">
+                    <i class="fa fa-3x fa-check"></i>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <h4>Awesome!</h4>
+                <p>your email address has been successfully verified !</p>
+                <button class="btn btn-success" data-dismiss="modal"><span>Start Exploring</span> <i class="fa fa-angle-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script>
+        var Delete = function (id) {
+            $("#deleteDialog").modal("show");
+            $("#confirm").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: `/Todo/Delete/${id}`,
+                    success: function () {
+
+                        window.location.href = "/Todo/Index" + "/?pageSize=" + @ViewData["CurrentPageSize"];
+                    }
+                });
+            });
+        }
+    </script>
+
+    @if (TempData["IsEmailSent"] != null && (bool)TempData["IsEmailSent"])
+    {
+        <script>
+            $(function () {
+                $("#verifyEmailDialog").modal('show');
+                window.onclick = function (event) {
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                }
+            });
+        </script>
+    }
+
+    @if (TempData["EmailConfirmation"] != null && (bool)TempData["EmailConfirmation"])
+    {
+        <script>
+            $(function () {
+                $("#emailConfirmed").modal('show');
+                window.onclick = function (event) {
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                }
+            });
+        </script>
+    }
+}

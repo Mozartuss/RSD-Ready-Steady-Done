@@ -1,0 +1,108 @@
+﻿@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using TodoWebProjekt.Authorization
+@model TodoWebProjekt.ViewModel.FileTaskViewModel
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+    <body style="margin: 0; padding: 0; background: lightgoldenrodyellow;">
+        <div class="notebook-paper">
+            <div class="notebook-lines">
+                @if (Model.Important)
+                {
+                    <div class="ribbon-wrapper-red">
+                        <div class="ribbon-red">Important</div>
+                    </div>
+                }
+                @if (Model.Active)
+                {
+                    <div class="ribbon">
+                        <span class="ribbon-active">Active</span>
+                    </div>
+                }
+                else
+                {
+                    <span class="stamp is-approved">Done</span>
+                }
+                <div class="notebook-text">
+                    <div style="text-align:center; font-size: 3.0rem">
+                        @Html.DisplayFor(model => model.Task.Title)
+                    </div>
+                    <br />
+                    <br />
+                    @Html.DisplayFor(model => model.Task.Description)
+
+                    @if (Model.File != null)
+                    {
+                        <div class="detail-image detail">
+                            <img src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.File.Image)" alt="Task Image" />
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+        <div class="form-group footer" style="margin-bottom:0rem">
+            <div class="col-md-auto">
+                @{
+                    string itemUserId = Model.Task.UserId;
+                    string currentUserId = UserManager.GetUserId(User);
+                    var dis = itemUserId != currentUserId && !User.IsInRole(Constants.AdminRole) ? "disabled" : "";
+                }
+
+                <a asp-controller="Todo" asp-action="Index" class="btn btn-outline-primary btn-sm"><i class="fas fa-angle-left"></i> Back</a>
+                <a asp-action="Edit" asp-route-id="@Model.Task.TaskId" class="btn btn-outline-primary btn-sm @dis"><i class="fa fa-edit"></i> Edit</a>
+                @if (dis == "" || User.IsInRole(Constants.AdminRole))
+                {
+                    <button type="button" class="btn btn-danger btn-sm" onclick="Delete(@Model.Task.TaskId)"><i class="fa fa-trash-alt"></i> Delete</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-danger btn-sm" @dis><i class="fa fa-trash-alt"></i> Delete</button>
+                }
+            </div>
+        </div>
+    </body>
+
+<div id="deleteDialog" class="modal fade">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #e85e6c;">
+                <div class="icon-box">
+                    <i class="fa fa-3x fa-trash-alt"></i>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <h4>Delete!</h4>
+                <p>Are you sure you want to delete this task ?</p>
+                <button class="btn btn-outline-danger" style="background-color: #47c9a2; margin-right:2em" id="confirm"> <i class="fa fa-lg fa-check"></i></button>
+                <button class="btn btn-outline-secondary" style="background-color: #e85e6c" data-dismiss="modal"><i class="fa fa-lg fa-ban"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+
+        var Delete = function (id) {
+            $("#deleteDialog").modal("show");
+            $("#confirm").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: `/Todo/Delete/${id}`,
+                    success: function () {
+                        window.location.href = "/Todo/Index";
+                    }
+                });
+            });
+
+        }
+
+    </script>
+}

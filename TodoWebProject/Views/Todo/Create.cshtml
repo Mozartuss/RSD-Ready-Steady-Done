@@ -1,0 +1,116 @@
+﻿@model TodoWebProjekt.ViewModel.FileTaskViewModel
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+<h3>@ViewData["Title"]</h3>
+<hr />
+
+<form enctype="multipart/form-data" asp-controller="Todo" asp-action="Create" method="post" role="form">
+    <input type="hidden" value="@UserManager.GetUserAsync(User).Result?.FullName" id="userName" />
+    <div>
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="Task.Title" class="col-md-auto"> Title of the Task</label>
+
+            <div class="col-md-auto">
+                <input asp-for="Task.Title" class="form-control" id="taskName" />
+                <span asp-validation-for="Task.Title" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Task.Description" class="col-md-auto"> Description</label>
+
+            <div class="col-md-auto">
+                <textarea asp-for="Task.Description" class="form-control" id="Description" rows="3" onkeyup="charcountupdate(this.value)"></textarea>
+                <span id="charcount"></span>
+                <br />
+                <span asp-validation-for="Task.Description" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="AssignUserId" class="col-md-auto">Align somebody to your TODO</label>
+            <div class="input-group col-md-auto">
+                <select class="custom-select" asp-for="AssignUserId" asp-items="@Model.ApplicationUserList">
+                    <option value="null">---</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="input-group col-md-auto">
+                <div style="width:50%">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="activeCheck" asp-for="Active" checked>
+                        <label class="custom-control-label" for="activeCheck"> Active </label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="importantCheck" asp-for="Important">
+                        <label class="custom-control-label" for="importantCheck"> Important </label>
+                    </div>
+
+                    <div class="custom-file" style="margin-right: 15px; margin-top: 33px">
+                        <input asp-for="File.Image" type="file" class="custom-file-input" id="Image" name="Image">
+                        <label class="custom-file-label">Choose file...</label>
+                    </div>
+                </div>
+
+                <div class="col-md-auto" style="float:right; width: 50%">
+                    <img id="image_upload_preview" style="height:auto; max-height:250px; max-width:500px; float:right;" src="~/placeholder/placeholder.png" alt="Preview placeholder" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-auto">
+                <input type="submit" value="Create" class="btn btn-success" id="saveButton" />
+                <a asp-controller="Todo" asp-action="Index" class="btn btn-outline-danger"> <i class="fa fa-ban"></i> Cancel</a>
+            </div>
+        </div>
+    </div>
+
+
+    @section Scripts
+    {
+        <script>
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#image_upload_preview').attr('src', e.target.result);
+                    };
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+
+            $(document).ready(function () {
+
+                $('.custom-file-input').change(function () {
+                    readURL(this);
+                    const fileName = $(this).val().split("\\").pop();
+                    $(this).next('.custom-file-label').html(fileName);
+                });
+            });
+
+
+        </script>
+
+        <script>
+            function charcountupdate(str) {
+                var lng = str.length + str.split('\n').length -1;
+                document.getElementById("charcount").innerHTML = lng + ' out of 1000 characters';
+            }
+
+        </script>
+
+        @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    }
+
+</form>

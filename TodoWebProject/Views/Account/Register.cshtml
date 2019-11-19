@@ -1,0 +1,60 @@
+﻿@model TodoWebProjekt.ViewModel.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - Todos</title>
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet"/>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:200,400,700" rel="stylesheet">
+</head>
+<body>
+<form method="post" class="text-center" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <p class="h4 mb-4">Sign up</p>
+
+    <div class="form-row mb-4">
+        <div class="col">
+            <input asp-for="FirstName" type="text" id="FirstName" class="form-control" placeholder="First name" required>
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+        <div class="col">
+            <input asp-for="LastName" type="text" id="LastName" class="form-control" placeholder="Last name" required>
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+    </div>
+    <input asp-for="Email" type="email" id="Email" class="form-control mb-4" placeholder="E-mail">
+    <span asp-validation-for="Email" class="text-danger"></span>
+
+    <input asp-for="Password" type="password" id="Password" class="form-control" placeholder="Password" aria-describedby="PasswordHelpBlock" required>
+    <span asp-validation-for="Password" class="text-danger"></span>
+    <small id="PasswordHelpBlock" class="form-text text-muted mb-4">At least 5 characters</small>
+
+    <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="form-control" placeholder="Confirm Password" aria-describedby="PasswordHelpBlock" required>
+    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    <small id="PasswordHelpBlock" class="form-text text-muted mb-4">Confirm Password</small>
+
+
+    <div class="checkbox mb-3">
+        <label>
+            <input asp-for="Role" type="checkbox"> Admin
+        </label>
+    </div>
+
+
+    <button class="btn btn-info my-4 btn-block" type="submit">Sign up</button>
+    <hr>
+    <p>
+    By clicking
+    <em>Sign up</em> you agree to our
+    <a href="" target="_blank">terms of service</a>
+
+</form>
+</body>

@@ -1,0 +1,86 @@
+﻿@using System.Security.Claims
+@using TodoWebProjekt.Authorization
+@inject SignInManager<ApplicationUser> SignInManager;
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Todos</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/js/toastr/toastr.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:200,400,700" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300"  />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Reenie+Beanie" />
+
+</head>
+<body id="body">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Todo" asp-action="Index">Todos</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav ml-auto">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <form method="post">
+                                    <button asp-controller="Account" asp-action="logout" type="submit" class="btn btn-link" style="width: auto">Logout</button>
+                                    @if (@UserManager.GetUserAsync(User).Result?.FullName == " ")
+                                    {
+                                        <a asp-controller="Account" asp-action="Profile" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)" class="btn btn-link" style="width: auto">
+                                            @UserManager.GetUserAsync(User).Result?.UserName @Html.Raw(User.IsInRole(Constants.AdminRole) ? "<font color='red'>  Admin </font>" : "")
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Account" asp-action="Profile" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)" class="btn btn-link" style="width: auto">
+                                            @UserManager.GetUserAsync(User).Result?.FullName @Html.Raw(User.IsInRole(Constants.AdminRole) ? "<font color='red'>  Admin </font>" : "")
+                                        </a>
+                                    }
+
+                                </form>
+
+
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a style="float: right" class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a style="float: right" class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                        }
+                    </ul>
+
+
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <partial name="_CookieConsentPartial" />
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script type="text/javascript" src="~/lib/font-awesome/js/all.js"></script>
+    <script type="text/javascript" src="~/js/site.js" asp-append-version="true"></script>
+    <script type="text/javascript" src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script type="text/javascript" src="~/js/notification.js"></script>
+    <script type="text/javascript" src="~/js/toastr/toastr.js"></script>
+    @RenderSection("Scripts", false)
+</body>
+</html>

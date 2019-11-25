@@ -5,12 +5,15 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TodoWebProjekt.Authorization;
 using TodoWebProjekt.Email;
 using TodoWebProjekt.Models;
@@ -26,6 +29,7 @@ namespace TodoWebProjekt.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailSender _emailSender;
+        private readonly TODOContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
 
@@ -36,16 +40,19 @@ namespace TodoWebProjekt.Controllers
         /// <param name="signInManager"> Build-in manager to manage the login process. </param>
         /// <param name="roleManager"> The buuild-in manager to manage the user rolls. </param>
         /// <param name="emailSender"> The service to send the confirmation email. </param>
+        /// <param name="context"> THe context file. </param>
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            TODOContext context)
         {
-            this._userManager = userManager;
-            this._signInManager = signInManager;
-            this._roleManager = roleManager;
-            this._emailSender = emailSender;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
+            _emailSender = emailSender;
+            _context = context;
         }
 
         /// <summary>
@@ -57,13 +64,15 @@ namespace TodoWebProjekt.Controllers
             return View();
         }
 
+
         /// <summary>
         /// The post register process, add a new registered user default to the uer rolle.
         /// </summary>
         /// <param name="model"> The register view model. </param>
+        /// <param name="profilePicture"> the users profile picture. </param>
         /// <returns> Redirect back to the Index view of the Todo controller. </returns>
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model, IFormFile profilePicture)
         {
             if (!ModelState.IsValid)
             {
@@ -72,7 +81,7 @@ namespace TodoWebProjekt.Controllers
 
             if (model == null)
             {
-                return View((RegisterViewModel)null);
+                return View(model);
             }
 
             var user = new ApplicationUser
@@ -83,6 +92,39 @@ namespace TodoWebProjekt.Controllers
                 LastName = model.LastName,
                 Created = DateTime.Now,
             };
+
+            if (profilePicture != null)
+            {
+                if (profilePicture.ContentType.IndexOf("image", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    ModelState.AddModelError(string.Empty, "This file is not an image");
+
+                    return View(model);
+                }
+
+                if (model != null)
+                {
+                    user.ProfilePicture = new ProfilePicture
+                    {
+                        ApplicationUser = user,
+                    };
+
+                    await using var ms = new MemoryStream();
+                    await profilePicture.CopyToAsync(ms);
+
+                    // max size = 300kb
+                    if (ms.Length > 307200)
+                    {
+                        ModelState.AddModelError(string.Empty, "The Profile picture is too large max size: 300kb");
+                        return View(model);
+                    }
+
+                    user.ProfilePicture.Image = ms.ToArray();
+                    user.ProfilePicture.ContentType = profilePicture.ContentType;
+                    user.ProfilePicture.Filename = Path.GetRandomFileName();
+                }
+            }
+
             var result = await _userManager.CreateAsync(user, model.Password).ConfigureAwait(true);
 
             if (result.Succeeded)
@@ -109,6 +151,7 @@ namespace TodoWebProjekt.Controllers
                 }
 
                 TempData["IsEmailSent"] = true;
+                TempData["Email"] = model.Email;
                 return RedirectToAction("Login");
             }
 
@@ -250,7 +293,18 @@ namespace TodoWebProjekt.Controllers
                             LastName = info.Principal.FindFirstValue(ClaimTypes.Surname),
                             Created = DateTime.Now,
                         };
+
+                        if (info.Principal.FindFirstValue(ClaimTypes.Email) != null)
+                        {
+                            user.Email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                        }
+
                         registerResult = await _userManager.CreateAsync(user);
+                    }
+
+                    if (info.Principal.HasClaim(c => c.Type == "profilePicture"))
+                    {
+                        await _userManager.AddClaimAsync(user, info.Principal.FindFirst("profilePicture"));
                     }
                 }
 
@@ -267,7 +321,25 @@ namespace TodoWebProjekt.Controllers
                             LastName = string.Empty,
                             Created = DateTime.Now,
                         };
+
+                        if (info.Principal.FindFirstValue("display-name") != null)
+                        {
+                            var fullname = info.Principal.FindFirstValue("display-name");
+                            user.FirstName = fullname.Split(null).First();
+                            user.LastName = fullname.Split(null).Last();
+                        }
+
+                        if (info.Principal.FindFirstValue(ClaimTypes.Email) != null)
+                        {
+                            user.Email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                        }
+
                         registerResult = await _userManager.CreateAsync(user);
+
+                        if (info.Principal.HasClaim(c => c.Type == "profilePicture"))
+                        {
+                            await _userManager.AddClaimAsync(user, info.Principal.FindFirst("profilePicture"));
+                        }
                     }
                 }
 
@@ -302,13 +374,20 @@ namespace TodoWebProjekt.Controllers
                                 Created = DateTime.Now,
                             };
                         }
-
                         registerResult = await _userManager.CreateAsync(user);
+
+                        if (registerResult.Succeeded)
+                        {
+                            if (info.Principal.HasClaim(c => c.Type == "profilePicture"))
+                            {
+                                await _userManager.AddClaimAsync(user, info.Principal.FindFirst("profilePicture"));
+                            }
+                        }
                     }
                 }
 
                 // Facebook and Twitter have no email so you need no confirmation.
-                if (registerResult.Succeeded && provider != "Google")
+                if (registerResult.Succeeded && info.Principal.FindFirstValue(ClaimTypes.Email) == null)
                 {
                     await _userManager.AddLoginAsync(user, info);
                     await _signInManager.SignInAsync(user, isPersistent: false);
@@ -317,7 +396,7 @@ namespace TodoWebProjekt.Controllers
                 }
 
                 // Google give the user email so we need to confirm this one.
-                else if (registerResult.Succeeded && provider == "Google")
+                else if (registerResult.Succeeded && info.Principal.FindFirstValue(ClaimTypes.Email) != null)
                 {
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
@@ -403,23 +482,45 @@ namespace TodoWebProjekt.Controllers
             var currentUser = await _userManager.FindByIdAsync(id).ConfigureAwait(true);
             var currentUserClaims = await _userManager.GetClaimsAsync(currentUser).ConfigureAwait(true);
             var currentUserRoles = await _userManager.GetRolesAsync(currentUser).ConfigureAwait(true);
+            var currentProfilePic = await _context.ProfilePictures.FirstOrDefaultAsync(p => p.UserId == id);
 
             if (currentUser != await _userManager.GetUserAsync(User).ConfigureAwait(true))
             {
                 return RedirectToAction("Index", "Todo");
             }
 
-            var profileViewModel = new ProfileViewModel
+            ProfileViewModel profileViewModel = null;
+
+            if (currentProfilePic != null)
             {
-                Id = currentUser.Id,
-                FirstName = currentUser.FirstName,
-                LastName = currentUser.LastName,
-                Created = currentUser.Created,
-                Email = currentUser.Email,
-                Mobile = currentUser.PhoneNumber,
-                Claims = currentUserClaims.Select(c => c.Value).ToList(),
-                Roles = currentUserRoles,
-            };
+                profileViewModel = new ProfileViewModel
+                {
+                    Id = currentUser.Id,
+                    FirstName = currentUser.FirstName,
+                    LastName = currentUser.LastName,
+                    Created = currentUser.Created,
+                    Email = currentUser.Email,
+                    Mobile = currentUser.PhoneNumber,
+                    Claims = currentUserClaims.Select(c => c.Value).ToList(),
+                    Roles = currentUserRoles,
+                    ProfilePicture = currentProfilePic,
+                };
+            }
+            else
+            {
+                profileViewModel = new ProfileViewModel
+                {
+                    Id = currentUser.Id,
+                    FirstName = currentUser.FirstName,
+                    LastName = currentUser.LastName,
+                    Created = currentUser.Created,
+                    Email = currentUser.Email,
+                    Mobile = currentUser.PhoneNumber,
+                    Claims = currentUserClaims.Select(c => c.Value).ToList(),
+                    Roles = currentUserRoles,
+                };
+            }
+
 
             return View(profileViewModel);
         }
@@ -472,10 +573,7 @@ namespace TodoWebProjekt.Controllers
                 }
             }
 
-            if (profileViewModel.Email != null)
-            {
-                user.EmailConfirmed = false;
-            }
+
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -483,6 +581,8 @@ namespace TodoWebProjekt.Controllers
             {
                 if (profileViewModel.Email != null && !sameEmail)
                 {
+                    user.EmailConfirmed = false;
+
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
                     var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token }, Request.Scheme);

@@ -8,54 +8,67 @@
     ViewData["Title"] = "Details";
 }
 
-    <body style="margin: 0; padding: 0; background: lightgoldenrodyellow;">
-        <div class="notebook-paper">
-            <div class="notebook-lines">
-                @if (Model.Important)
-                {
-                    <div class="ribbon-wrapper-red">
-                        <div class="ribbon-red">Important</div>
-                    </div>
-                }
-                @if (Model.Active)
-                {
-                    <div class="ribbon">
-                        <span class="ribbon-active">Active</span>
-                    </div>
-                }
-                else
-                {
-                    <span class="stamp is-approved">Done</span>
-                }
-                <div class="notebook-text">
-                    <div style="text-align:center; font-size: 3.0rem">
-                        @Html.DisplayFor(model => model.Task.Title)
-                    </div>
-                    <br />
-                    <br />
-                    @Html.DisplayFor(model => model.Task.Description)
+<div class="jumbotron" style="background: white">
+    <div class="container">
+        <h1>
+            @Html.DisplayFor(model => model.Task.Title)
+        </h1>
 
-                    @if (Model.File != null)
-                    {
-                        <div class="detail-image detail">
-                            <img src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.File.Image)" alt="Task Image" />
-                        </div>
-                    }
-                </div>
-
-            </div>
+        <div class="d-inline-block">
+            @if (Model.AuthorProfilePicture != null)
+            {
+                <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="@UserManager.FindByIdAsync(Model.Task.UserId).Result?.FullName" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.AuthorProfilePicture.Image)" />
+            }
+            else
+            {
+                <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="@UserManager.FindByIdAsync(Model.Task.UserId).Result?.FullName" src="~/placeholder/placeholder_avatar.jpg" />
+            }
         </div>
-        <div class="form-group footer" style="margin-bottom:0rem">
-            <div class="col-md-auto">
-                @{
-                    string itemUserId = Model.Task.UserId;
-                    string currentUserId = UserManager.GetUserId(User);
-                    var dis = itemUserId != currentUserId && !User.IsInRole(Constants.AdminRole) ? "disabled" : "";
-                }
+        <div class="d-inline-block align-middle">
+            <p style="font-weight: 700;  padding-left:5px; margin-bottom:auto">
+                @Html.DisplayFor(model => UserManager.FindByIdAsync(Model.Task.UserId).Result.FullName)
+            </p>
+        </div>
 
-                <a asp-controller="Todo" asp-action="Index" class="btn btn-outline-primary btn-sm"><i class="fas fa-angle-left"></i> Back</a>
-                <a asp-action="Edit" asp-route-id="@Model.Task.TaskId" class="btn btn-outline-primary btn-sm @dis"><i class="fa fa-edit"></i> Edit</a>
-                @if (dis == "" || User.IsInRole(Constants.AdminRole))
+
+        @if (Model.Task.ActiveStatus == "Doing")
+        {
+            <span class="badge badge-primary mx-1 d-inline-block" style="font-size:1.5rem; vertical-align:middle; float:right"> Doing </span>
+        }
+        else if (Model.Task.ActiveStatus == "Done")
+        {
+            <span class="badge badge-success mx-1 d-inline-block" style="font-size:1.5rem; vertical-align:middle; float:right"> Done </span>
+        }
+        @if (Model.Task.ImportanceStatus == "Important")
+        {
+            <span class="badge badge-danger mx-1 d-inline-block" style="font-size:1.5rem; vertical-align:middle; float:right"> Important </span>
+        }
+
+
+
+
+
+
+        <hr class="my-4">
+        <p class="mx-5">@Html.DisplayFor(model => model.Task.Description)</p>
+        <div>
+            @if (Model.File != null)
+            {
+                <img style="height: 500px;object-fit: contain;" class="card-img-top" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.File.Image)" alt="Task Image" />
+            }
+        </div>
+
+
+        <div class="form-group footer" style="width:100%; margin-bottom:0">
+            @{
+                var dis = Model.Task.UserId != UserManager.GetUserId(User) && !User.IsInRole(Constants.AdminRole) ? "disabled" : "";
+            }
+            <form asp-controller="Todo">
+                <button class="btn btn-outline-primary" type="submit" asp-action="Index"><i class="fa fa-chevron-left"></i> Back</button>
+
+                <a asp-action="Edit" asp-route-id="@Model.Task.TaskId" class="btn btn-outline-primary @dis"><i class="fa fa-edit"></i> Edit</a>
+
+                @if ((await AuthorizationService.AuthorizeAsync(User, Model.Task, TaskOperations.Delete)).Succeeded || User.IsInRole(Constants.AdminRole))
                 {
                     <button type="button" class="btn btn-danger btn-sm" onclick="Delete(@Model.Task.TaskId)"><i class="fa fa-trash-alt"></i> Delete</button>
                 }
@@ -63,9 +76,11 @@
                 {
                     <button type="button" class="btn btn-danger btn-sm" @dis><i class="fa fa-trash-alt"></i> Delete</button>
                 }
-            </div>
+            </form>
         </div>
-    </body>
+
+    </div>
+</div>
 
 <div id="deleteDialog" class="modal fade">
     <div class="modal-dialog modal-confirm">

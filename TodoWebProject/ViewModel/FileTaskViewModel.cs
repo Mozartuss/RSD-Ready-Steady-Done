@@ -25,6 +25,11 @@ namespace TodoWebProjekt.ViewModel
         public File File { get; set; }
 
         /// <summary>
+        /// Gets or sets the profile author picture.
+        /// </summary>
+        public ProfilePicture AuthorProfilePicture { get; set; }
+
+        /// <summary>
         /// Gets or sets the Application List which contains all assignable user.
         /// </summary>
         public SelectList ApplicationUserList { get; set; }

@@ -83,5 +83,12 @@ namespace TodoWebProjekt.Repository
         /// <param name="fileTaskViewModel"> The file task view model which one you want to update. </param>
         /// <returns> 0 if failure and 1 if success. </returns>
         Task<int> Update(FileTaskViewModel fileTaskViewModel);
+
+        /// <summary>
+        /// Get the specific profile picture from user id.
+        /// </summary>
+        /// <param name="id">User id.</param>
+        /// <returns>ProfilePicture.</returns>
+        Task<ProfilePicture> GetProfilePicture(string id);
     }
 }

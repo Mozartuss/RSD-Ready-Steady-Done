@@ -6,6 +6,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using TodoWebProjekt.Models;
 
 namespace TodoWebProjekt.ViewModel
 {
@@ -46,7 +47,9 @@ namespace TodoWebProjekt.ViewModel
         /// </summary>
         [Required]
         [DataType(DataType.Password)]
-        [StringLength(50, MinimumLength = 5, ErrorMessage = "min 5, max 50 letters")]
+        [RegularExpression(
+            "^((?=.*?[A-Z])(?=.*?[a-z])).{6,}$",
+            ErrorMessage = "Passwords must be at least 6 characters and have to contain upper case and lower case")]
         public string Password { get; set; }
 
         /// <summary>
@@ -61,5 +64,10 @@ namespace TodoWebProjekt.ViewModel
         /// Gets or sets a value indicating whether the user role (User or Admin).
         /// </summary>
         public bool Role { get; set; }
+
+        /// <summary>
+        /// Gets or sets the users profile picture.
+        /// </summary>
+        public ProfilePicture ProfilePicture { get; set; }
     }
 }

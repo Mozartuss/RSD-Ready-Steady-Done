@@ -40,5 +40,7 @@ namespace TodoWebProjekt.Models
         /// Gets or sets the date of creation.
         /// </summary>
         public DateTime Created { get; set; }
+
+        public ProfilePicture ProfilePicture { get; set; }
     }
 }

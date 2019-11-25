@@ -115,16 +115,6 @@ body {
     font-family: 'Montserrat', sans-serif;
 }
 
-/*Profile*/
-
-.profile-avatar {
-    border: 4px solid #f3f3f3;
-    margin: 0 auto;
-    margin-top: 196px;
-    position: relative;
-    width: 200px;
-}
-
 .noAccess {
     -ms-transform: translate(-50%, -50%);
     -webkit-transform: translate(-50%, -50%);
@@ -620,4 +610,53 @@ body {
     background-color: #fff;
 }
 
+.image--cover {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 20px;
+    object-fit: cover;
+    object-position: center;
+}
+.pass-wrapper {
+    width: 310px
+}
+
+.card-image-top {
+    height:500px;
+    width : 100%;
+    object-fit: contain;
+}
+
+#uncheckButton:hover {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+    #uncheckButton:hover span {
+        display:none
+    }
+
+    #uncheckButton:hover:before {
+
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f05e"
+    }
+
+.cropTitle {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 451px;
+    max-width:451px;
+}
+
+.crop {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 151px;
+}
 

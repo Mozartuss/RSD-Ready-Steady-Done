@@ -3,58 +3,135 @@
 @{
     ViewData["Title"] = "Register";
 }
-<!DOCTYPE html>
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - Todos</title>
-    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet"/>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:200,400,700" rel="stylesheet">
-</head>
-<body>
-<form method="post" class="text-center" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;">
-    <div asp-validation-summary="All" class="text-danger"></div>
 
+
+
+<form method="post" enctype="multipart/form-data" role="form" class="text-center needs-validation" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;" id="contact_form">
     <p class="h4 mb-4">Sign up</p>
 
-    <div class="form-row mb-4">
-        <div class="col">
-            <input asp-for="FirstName" type="text" id="FirstName" class="form-control" placeholder="First name" required>
+    <img id="image_upload_preview" class="image--cover" src="~/placeholder/Placeholder_uploade.jpg" alt="Preview" />
+
+    <label class="btn btn-light">
+        <input asp-for="ProfilePicture" type="file" id="Image" name="profilePicture" accept="image/*" onchange="readURL(this);" hidden>
+        Select Image
+    </label>
+
+
+    <div class="form-row mt-2">
+
+        <!--First name-->
+
+        <div class="input-group col">
+            <div class=" input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-user"></i></span>
+            </div>
+            <input asp-for="FirstName" id="FirstName" class="form-control" placeholder="First name" autocomplete="off">
             <span asp-validation-for="FirstName" class="text-danger"></span>
         </div>
-        <div class="col">
-            <input asp-for="LastName" type="text" id="LastName" class="form-control" placeholder="Last name" required>
+
+
+        <!--Last name-->
+
+        <div class="input-group col">
+            <div class=" input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-user"></i></span>
+            </div>
+            <input asp-for="LastName" id="LastName" class="form-control" placeholder="Last Name" autocomplete="off">
             <span asp-validation-for="LastName" class="text-danger"></span>
         </div>
+
     </div>
-    <input asp-for="Email" type="email" id="Email" class="form-control mb-4" placeholder="E-mail">
+
+
+    <!--Email-->
+
+    <div class="input-group mt-4">
+        <div class=" input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+        </div>
+        <input asp-for="Email" type="email" id="Email" class="form-control" placeholder="E-mail" autocomplete="new-email" />
+    </div>
     <span asp-validation-for="Email" class="text-danger"></span>
 
-    <input asp-for="Password" type="password" id="Password" class="form-control" placeholder="Password" aria-describedby="PasswordHelpBlock" required>
+    <!--Password-->
+
+    <div class="input-group mt-4" >
+        <div class=" input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-key"></i></span>
+        </div>
+        <input asp-for="Password" type="password" id="myPassword" class="form-control" placeholder="Password" autocomplete="new-password">
+        <div class="input-group-append">
+            <span class="input-group-text">
+                <a href="" id="show_hide_password" style="color:#495057"><i class="fa fa-eye-slash" id="eye"></i></a>
+            </span>
+        </div>
+    </div>
     <span asp-validation-for="Password" class="text-danger"></span>
-    <small id="PasswordHelpBlock" class="form-text text-muted mb-4">At least 5 characters</small>
 
-    <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="form-control" placeholder="Confirm Password" aria-describedby="PasswordHelpBlock" required>
+    <!--Confirm Password-->
+
+    <div class="input-group mt-4">
+        <div class=" input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-key"></i></span>
+        </div>
+        <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="form-control" placeholder="Confirm Password" required autocomplete="new-user">
+    </div>
     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    <small id="PasswordHelpBlock" class="form-text text-muted mb-4">Confirm Password</small>
 
-
-    <div class="checkbox mb-3">
-        <label>
-            <input asp-for="Role" type="checkbox"> Admin
-        </label>
+    <!--Admin ?-->
+    <div class="custom-control custom-switch mb-3 mt-4">
+        <input asp-for="Role" type="checkbox" class="custom-control-input" id="Admin">
+        <label class="custom-control-label" for="Admin">Admin</label>
     </div>
 
+    <!--Button-->
 
     <button class="btn btn-info my-4 btn-block" type="submit">Sign up</button>
-    <hr>
-    <p>
-    By clicking
-    <em>Sign up</em> you agree to our
-    <a href="" target="_blank">terms of service</a>
 
 </form>
-</body>
+
+@section scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#image_upload_preview').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#myPassword').password({
+                field: '#FirstName',
+                filed: '#LastName',
+                minimumLength: 6,
+                fieldPartialMatch: true,
+                animate: true,
+            });
+
+        });
+
+        $(document).ready(function () {
+            $("#show_hide_password").on('click', function (event) {
+                event.preventDefault();
+                if ($('#myPassword').attr("type") == "text") {
+                    $('#myPassword').attr('type', 'password');
+                    $('#eye').addClass("fa-eye-slash");
+                    $('#eye').removeClass("fa-eye");
+                } else if ($('#myPassword').attr("type") == "password") {
+                    $('#myPassword').attr('type', 'text');
+                    $('#eye').removeClass("fa-eye-slash");
+                    $('#eye').addClass("fa-eye");
+                }
+            });
+        });
+    </script>
+}

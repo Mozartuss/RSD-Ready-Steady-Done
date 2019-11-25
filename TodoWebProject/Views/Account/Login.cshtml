@@ -14,7 +14,7 @@
             <span class="input-group-text" id="username-addon"><i class="fa fa-user"></i></span>
         </div>
 
-        <input asp-for="Email" type="email" id="Email" class="form-control" placeholder="E-mail" aria-label="Username" aria-describedby="username-addon">
+        <input asp-for="Email" type="email" id="Email" class="form-control" placeholder="E-mail" aria-label="Username" aria-describedby="username-addon" autocomplete="off">
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
@@ -23,7 +23,12 @@
             <span class="input-group-text" id="password-addon"><i class="fa fa-key"></i></span>
         </div>
 
-        <input asp-for="Password" type="password" id="Password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon">
+        <input asp-for="Password" type="password" id="Password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" autocomplete="new-password">
+        <div class="input-group-append">
+            <span class="input-group-text">
+                <a href="" id="show_hide_password" style="color:#495057"><i class="fa fa-eye-slash" id="eye"></i></a>
+            </span>
+        </div>
         <span asp-validation-for="Password" class="text-danger"></span>
     </div>
 
@@ -94,9 +99,10 @@
     </div>
 </div>
 
-@if (TempData["EmailConfirmation"] != null && (bool)TempData["EmailConfirmation"])
-{
-    @section Scripts {
+@section Scripts {
+    @if (TempData["EmailConfirmation"] != null && (bool)TempData["EmailConfirmation"])
+    {
+
         <script>
             $(function () {
                 $("#emailConfirmed").modal('show');
@@ -107,13 +113,13 @@
                 }
             });
         </script>
+
+
     }
 
-}
+    @if (TempData["IsEmailSent"] != null && (bool)TempData["IsEmailSent"])
+    {
 
-@if (TempData["IsEmailSent"] != null && (bool)TempData["IsEmailSent"])
-{
-    @section Scripts {
         <script>
             $(function () {
                 $("#verifyEmailDialog").modal('show');
@@ -124,6 +130,25 @@
                 }
             });
         </script>
+
+
     }
 
+    <script>
+        $(document).ready(function () {
+            $("#show_hide_password").on('click', function (event) {
+                event.preventDefault();
+                if ($('#Password').attr("type") == "text") {
+                    $('#Password').attr('type', 'password');
+                    $('#eye').addClass("fa-eye-slash");
+                    $('#eye').removeClass("fa-eye");
+                } else if ($('#Password').attr("type") == "password") {
+                    $('#Password').attr('type', 'text');
+                    $('#eye').removeClass("fa-eye-slash");
+                    $('#eye').addClass("fa-eye");
+                }
+            });
+        });
+    </script>
 }
+

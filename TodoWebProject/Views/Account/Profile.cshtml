@@ -1,114 +1,131 @@
 ﻿@using TodoWebProjekt.Authorization
+@using System.Security.Claims
 @model TodoWebProjekt.ViewModel.ProfileViewModel
 
 @{
     ViewData["Title"] = "Profile";
 }
 
-<h1>Profile</h1>
 
-<!DOCTYPE html>
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - Todos</title>
-    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet"/>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:200,400,700" rel="stylesheet">
-</head>
-<body>
+<form method="post" role="form" class="needs-validation">
 
+    @{
+        var methode = User.FindFirst(ClaimTypes.AuthenticationMethod);
+        var provider = methode != null ? methode.Value : null;
+        
+        }
 
-<form method="post">
-    <div class="col text-center">
-        <div class="card-img">
-            <div class="card-body ">
-                <img src="~/placeholder/placeholder_avatar.jpg" class="profile-avatar" alt="User avatar">
-            </div>
+    <div class="container">
+        <div class="col text-center">
+            <div class="card-img">
+                <div class="card-body ">
 
-            @*@foreach (var item in Model.OnlineUsers)
+                    @if (Model.ProfilePicture != null && Model.ProfilePicture.Image != null)
                     {
-                        <h6>@Html.DisplayFor(modelItem => item.Result.FullName)</h6>
-                    }*@
+                        <input asp-for="ProfilePicture.UserId" type="hidden">
+                        <input asp-for="ProfilePicture.ProfilePictureId" type="hidden">
+                        <img class="image--cover" style="width:250px; height:250px" alt="User avatar" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.ProfilePicture.Image)" />
+                    }
+                    else if (User.FindFirst(c => c.Type == "profilePicture") != null)
+                    {
+                        <img class="image--cover" style="width:250px; height:250px;" alt="User avatar" src="@User.FindFirst(c => c.Type == "profilePicture").Value" />
+                    }
+                    else
+                    {
+                        <img class="image--cover" style="width:250px; height:250px" alt="User avatar" src="~/placeholder/placeholder_avatar.jpg" />
+                    }
+                </div>
 
-            @if (User.IsInRole(Constants.AdminRole))
-            {
-                <h4 style="color: red">Administrator</h4>
-            }
+                @if (User.IsInRole(Constants.AdminRole))
+                {
+                    <h4 style="color: red">Administrator</h4>
+                }
 
-        </div>
-
-        <div class="card ">
-            <div class="card-header">
-                <h4 class="card-title">Contact info</h4>
             </div>
-            <div class="card-body">
-                <div class="form-row" style="margin-bottom: 1rem">
-                    <div class="col text-left">
-                        <label style="padding-left: 15px" for="FirstName">First name</label>
-                        <div class="col">
-                            <input asp-for="FirstName" type="text" class="form-control" id="FirstName">
+
+            <div class="card ">
+                <div class="card-header">
+                    <h4 class="card-title">Contact info</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row" style="margin-bottom: 1rem">
+
+                        <!--First name-->
+
+                        <div class="col text-left">
+                            <label style="padding-left: 15px" for="FirstName">First name</label>
+                            <div class="col">
+                                <input asp-for="FirstName" type="text" class="form-control" id="FirstName" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <!--Last name-->
+
+                        <div class="col text-left">
+                            <label style="padding-left: 15px" for="LastName">Last name</label>
+                            <div class="col">
+                                <input asp-for="LastName" type="text" class="form-control" id="LastName" autocomplete="off">
+                            </div>
                         </div>
                     </div>
-                    <div class="col text-left">
-                        <label style="padding-left: 15px" for="LastName">Last name</label>
+
+                    <!--Mobile-->
+
+                    <div class="form-group  text-left">
+                        <label style="padding-left: 15px" for="MobileNumber">Mobile number</label>
                         <div class="col">
-                            <input asp-for="LastName" type="text" class="form-control" id="LastName">
+                            <input asp-for="Mobile" type="tel" class="form-control" id="MobileNumber" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <!--Email-->
+                    @{var show = provider != null ? "readonly" : "";}
+                    <div class="form-group text-left">
+                        <label style="padding-left: 15px" for="Email">E-mail address</label>
+                        <div class="col">
+                            <input @show asp-for="Email" type="email" class="form-control" id="Email" autocomplete="new email">
                         </div>
                     </div>
                 </div>
-                <div class="form-group  text-left">
-                    <label style="padding-left: 15px" for="MobileNumber">Mobile number</label>
-                    <div class="col">
-                        <input asp-for="Mobile" type="tel" class="form-control" id="MobileNumber">
-                    </div>
-                </div>
-                <div class="form-group text-left">
-                    <label style="padding-left: 15px" for="Email">E-mail address</label>
-                    <div class="col">
-                        <input asp-for="Email" type="email" class="form-control" id="Email">
-                    </div>
-                </div>
             </div>
-        </div>
 
-        <div class="card ">
-            <div class="card-header">
-                <h4 class="card-title">Security</h4>
+            @{var hide = provider != null ? "disabled" : "";}
+
+            <div class="card ">
+                <div class="card-header">
+                    <h4 class="card-title">Security</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-group text-left">
+                        <label style="padding-left: 15px" for="CurrentPassword">Current password</label>
+                        <div class="col">
+                            <input @hide asp-for="OldPassword" type="password" class="form-control" id="CurrentPassword" autocomplete="new-password">
+                            <span asp-validation-for="OldPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group text-left">
+                        <label style="padding-left: 15px" for="NewPassword">New password</label>
+                        <div class="col">
+                            <input @hide asp-for="Password" type="password" class="form-control" id="NewPassword" autocomplete="new-password">
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group text-left">
+                        <label style="padding-left: 15px" for="PasswordConfirmation">Confirm password</label>
+                        <div class="col">
+                            <input @hide asp-for="ConfirmPassword" type="password" class="form-control" id="PasswordConfirmation" autocomplete="off">
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col text-left">
+                            <button type="submit" class="btn btn-primary">Edit</button>
+                            <button type="submit" class="btn btn-outline-danger" asp-controller="Todo" asp-action="Index">Cancel</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="form-group text-left">
-                    <label style="padding-left: 15px" for="CurrentPassword">Current password</label>
-                    <div class="col">
-                        <input asp-for="OldPassword" type="password" class="form-control" id="CurrentPassword">
-                        <span asp-validation-for="OldPassword" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-group text-left">
-                    <label style="padding-left: 15px" for="NewPassword">New password</label>
-                    <div class="col">
-                        <input asp-for="Password" type="password" class="form-control" id="NewPassword">
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-group text-left">
-                    <label style="padding-left: 15px" for="PasswordConfirmation">Confirm password</label>
-                    <div class="col">
-                        <input asp-for="ConfirmPassword" type="password" class="form-control" id="PasswordConfirmation">
-                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col text-left">
-                        <button type="submit" class="btn btn-primary">Edit</button>
-                        <button type="submit" class="btn btn-outline-danger" asp-controller="Todo" asp-action="Index">Cancel</button>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </form>
-
-</body>

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using TodoWebProjekt.Models;
 
 namespace TodoWebProjekt.ViewModel
 {
@@ -93,5 +94,10 @@ namespace TodoWebProjekt.ViewModel
         /// Gets or sets all the user roles.
         /// </summary>
         public IList<string> Roles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the users profile picture.
+        /// </summary>
+        public ProfilePicture ProfilePicture { get; set; }
     }
 }

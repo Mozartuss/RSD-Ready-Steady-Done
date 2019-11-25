@@ -254,6 +254,34 @@ namespace TodoWebProjekt.Migrations
                     b.ToTable("File");
                 });
 
+            modelBuilder.Entity("TodoWebProjekt.Models.ProfilePicture", b =>
+                {
+                    b.Property<int>("ProfilePictureId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ContentType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Filename")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ProfilePictureId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
+
+                    b.ToTable("ProfilePictures");
+                });
+
             modelBuilder.Entity("TodoWebProjekt.Models.Task", b =>
                 {
                     b.Property<int>("TaskId")
@@ -268,8 +296,7 @@ namespace TodoWebProjekt.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(5000);
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImportanceStatus")
                         .HasColumnType("nvarchar(max)");
@@ -345,6 +372,13 @@ namespace TodoWebProjekt.Migrations
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TodoWebProjekt.Models.ProfilePicture", b =>
+                {
+                    b.HasOne("TodoWebProjekt.Models.ApplicationUser", "ApplicationUser")
+                        .WithOne("ProfilePicture")
+                        .HasForeignKey("TodoWebProjekt.Models.ProfilePicture", "UserId");
                 });
 #pragma warning restore 612, 618
         }

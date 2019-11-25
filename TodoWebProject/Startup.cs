@@ -5,7 +5,10 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -89,6 +92,10 @@ namespace TodoWebProjekt
 
                     googleOptions.ClientId = googleAuthNSection["ClientId"];
                     googleOptions.ClientSecret = googleAuthNSection["ClientSecret"];
+
+                    googleOptions.ClaimActions.MapJsonKey("profilePicture", "picture", "url");
+                    googleOptions.SaveTokens = true;
+
                 })
                 .AddTwitter(twitterOptions =>
                 {
@@ -97,6 +104,10 @@ namespace TodoWebProjekt
 
                     twitterOptions.ConsumerKey = twitterAuthNSection["ConsumerKey"];
                     twitterOptions.ConsumerSecret = twitterAuthNSection["ConsumerSecret"];
+                    twitterOptions.SaveTokens = true;
+                    twitterOptions.RetrieveUserDetails = true;
+                    twitterOptions.ClaimActions.MapJsonKey("display-name", "name");
+                    twitterOptions.ClaimActions.MapJsonKey("profilePicture", "profile_image_url_https");
                 })
                 .AddFacebook(facebookOptions =>
                 {
@@ -105,6 +116,20 @@ namespace TodoWebProjekt
 
                     facebookOptions.AppId = facebookAuthNSection["AppId"];
                     facebookOptions.AppSecret = facebookAuthNSection["AppSecret"];
+
+                    facebookOptions.Events.OnCreatingTicket = (context) =>
+                    {
+                        var picture = $"https://graph.facebook.com/{context.Principal.FindFirstValue(ClaimTypes.NameIdentifier)}/picture?type=large";
+                        context.Identity.AddClaim(new Claim("profilePicture", picture));
+                        return System.Threading.Tasks.Task.CompletedTask;
+                    };
+                    facebookOptions.UserInformationEndpoint = "https://graph.facebook.com/v5.0/me?fields=id,name,email";
+
+                    facebookOptions.ClaimActions.MapJsonKey(ClaimTypes.DateOfBirth, "birthday");
+                    facebookOptions.ClaimActions.MapJsonKey(ClaimTypes.Gender, "gender");
+                    facebookOptions.ClaimActions.MapJsonSubKey("location", "location", "name");
+                    facebookOptions.ClaimActions.MapJsonKey(ClaimTypes.Locality, "locale");
+                    facebookOptions.ClaimActions.MapJsonKey("timezone", "timezone");
                 })
                 .AddCookie();
 

@@ -1,7 +1,8 @@
 ﻿@using System.Security.Claims
 @using TodoWebProjekt.Authorization
 @inject SignInManager<ApplicationUser> SignInManager;
-@inject UserManager<ApplicationUser> UserManager
+@inject UserManager<ApplicationUser> UserManager;
+@inject TODOContext _context;
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,14 +14,15 @@
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/js/toastr/toastr.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/jquery-password-strength-meter/css/password.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:200,400,700" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300"  />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Reenie+Beanie" />
 
 </head>
 <body id="body">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav id="navbar" class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3" style="position: fixed; width: 100%; z-index:3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Todo" asp-action="Index">Todos</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -34,6 +36,7 @@
                             <li class="nav-item">
                                 <form method="post">
                                     <button asp-controller="Account" asp-action="logout" type="submit" class="btn btn-link" style="width: auto">Logout</button>
+
                                     @if (@UserManager.GetUserAsync(User).Result?.FullName == " ")
                                     {
                                         <a asp-controller="Account" asp-action="Profile" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)" class="btn btn-link" style="width: auto">
@@ -45,6 +48,26 @@
                                         <a asp-controller="Account" asp-action="Profile" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)" class="btn btn-link" style="width: auto">
                                             @UserManager.GetUserAsync(User).Result?.FullName @Html.Raw(User.IsInRole(Constants.AdminRole) ? "<font color='red'>  Admin </font>" : "")
                                         </a>
+                                    }
+
+                                    @{
+                                        var user = UserManager.GetUserAsync(User).Result;
+                                        var pic = _context.ProfilePictures.FirstOrDefault(u => u.UserId == user.Id);
+                                        var external_pic_url = User.FindFirst(c => c.Type == "profilePicture");
+
+
+                                        if (pic != null && pic.Image != null)
+                                        {
+                                            <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="User avatar" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(pic.Image)" />
+                                        }
+                                        else if (external_pic_url != null)
+                                        {
+                                            <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="User avatar" src=@external_pic_url.Value />
+                                        }
+                                        else
+                                        {
+                                            <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="User avatar" src="~/placeholder/placeholder_avatar.jpg" />
+                                        }
                                     }
 
                                 </form>
@@ -70,7 +93,7 @@
     </header>
     <div class="container">
         <partial name="_CookieConsentPartial" />
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-3" style="padding-top:5rem!important;">
             @RenderBody()
         </main>
     </div>
@@ -81,6 +104,7 @@
     <script type="text/javascript" src="~/js/signalr/dist/browser/signalr.js"></script>
     <script type="text/javascript" src="~/js/notification.js"></script>
     <script type="text/javascript" src="~/js/toastr/toastr.js"></script>
+    <script type="text/javascript" src="~/lib/jquery-password-strength-meter/js/password.js"></script>
     @RenderSection("Scripts", false)
 </body>
 </html>

@@ -14,6 +14,11 @@
       "provider": "cdnjs",
       "library": "toastr.js@2.1.4",
       "destination": "wwwroot/js/toastr/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "zxcvbn@4.4.2",
+      "destination": "wwwroot/js/zxcvbn/"
     }
   ]
 }

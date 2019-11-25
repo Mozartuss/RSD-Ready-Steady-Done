@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TodoWebProjekt.Migrations
 {
-    public partial class Init : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -174,6 +174,28 @@ namespace TodoWebProjekt.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProfilePictures",
+                columns: table => new
+                {
+                    ProfilePictureId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Image = table.Column<byte[]>(nullable: true),
+                    Filename = table.Column<string>(nullable: true),
+                    ContentType = table.Column<string>(nullable: true),
+                    UserId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProfilePictures", x => x.ProfilePictureId);
+                    table.ForeignKey(
+                        name: "FK_ProfilePictures_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "File",
                 columns: table => new
                 {
@@ -238,6 +260,13 @@ namespace TodoWebProjekt.Migrations
                 name: "IX_File_TaskId",
                 table: "File",
                 column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProfilePictures_UserId",
+                table: "ProfilePictures",
+                column: "UserId",
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -261,13 +290,16 @@ namespace TodoWebProjekt.Migrations
                 name: "File");
 
             migrationBuilder.DropTable(
+                name: "ProfilePictures");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Task");
 
             migrationBuilder.DropTable(
-                name: "Task");
+                name: "AspNetUsers");
         }
     }
 }

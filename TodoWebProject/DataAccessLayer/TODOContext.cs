@@ -42,8 +42,23 @@ namespace TodoWebProjekt.Models
         public DbSet<File> File { get; set; }
 
         /// <summary>
-        /// Gets or sets the application uer model where all the Login and register informations are saved.
+        /// Gets or sets the application user model where all the Login and register informations are saved.
         /// </summary>
         public DbSet<ApplicationUser> ApplicationUser { get; set; }
+
+        /// <summary>
+        /// Gets or sets the users profile picture.
+        /// </summary>
+        public DbSet<ProfilePicture> ProfilePictures { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<ApplicationUser>()
+                .HasOne(a => a.ProfilePicture)
+                .WithOne(b => b.ApplicationUser)
+                .HasForeignKey<ProfilePicture>(b => b.UserId);
+
+            base.OnModelCreating(builder);
+        }
     }
 }

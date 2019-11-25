@@ -1,23 +1,17 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="File.cs" company="AraCom IT Services AG">
-// Copyright (c) AraCom IT Services AG. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TodoWebProjekt.Models
 {
     /// <summary>
-    /// Defines the File table at the database.
+    /// The table which contains the user Profile picture
     /// </summary>
-    public class File
+    public class ProfilePicture
     {
         /// <summary>
-        /// Gets or sets the specific FileId.
+        /// Gets or sets the specific ProfilePictureId.
         /// </summary>
         [Key]
-        public int FileId { get; set; }
+        public int ProfilePictureId { get; set; }
 
         /// <summary>
         /// Gets or sets the byte array which contains the image.
@@ -35,13 +29,13 @@ namespace TodoWebProjekt.Models
         public string ContentType { get; set; }
 
         /// <summary>
-        /// Gets or sets the id of the task which contains the Image.
+        /// Gets or sets the id of the User which contains the Image.
         /// </summary>
-        public int TaskId { get; set; }
+        public string UserId { get; set; }
 
         /// <summary>
         /// Gets or sets a link to the Task.
         /// </summary>
-        public virtual Task Task { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
     }
 }

@@ -120,6 +120,14 @@ namespace TodoWebProjekt.Repository
         }
 
         /// <inheritdoc/>
+        public async Task<ProfilePicture> GetProfilePicture(string id)
+        {
+            return await _context.ProfilePictures.FirstOrDefaultAsync(t => t.UserId == id).ConfigureAwait(true);
+            
+            
+        }
+
+        /// <inheritdoc/>
         public SelectList GetPossibleAssignUsers(string currentUserId)
         {
             var users = _context.ApplicationUser.OrderBy(c => c.Id)

@@ -27,14 +27,15 @@
                     <div class="input-group" style="margin-right: 5px">
                         <div class="btn-group" id="radioBtn">
                             @{
-                                var all = string.IsNullOrEmpty((string)ViewData["CurrentSort"]) ? "active" : "notActive";
-                                var important = ViewData["currentSort"] == "NotImportant" ? "active" : "notActive";
-                                var doing = ViewData["currentSort"] =="Done" ? "active" : "notActive";
-                                var done =  ViewData["currentSort"] =="Doing" ? "active" : "notActive";
+                                var current = (string)ViewData["CurrentSort"];
+                                var all = string.IsNullOrEmpty(current) ? "active" : "notActive";
+                                var important = current == "Important" ? "active" : "notActive";
+                                var notImportant = current == "NotImportant" ? "active" : "notActive";
+                                var done = current == "Done" ? "active" : "notActive";
+                                var doing = current == "Doing" ? "active" : "notActive";
                             }
 
                             <a class="btn btn-secondary @all"
-                               data-title="All"
                                asp-action="Index"
                                asp-route-pageSize="@ViewData["CurrentPageSize"]"
                                asp-route-sortOrder=""
@@ -43,38 +44,46 @@
                             </a>
 
                             <a class="btn btn-danger @important"
-                               data-title="Important"
                                asp-action="Index"
                                asp-route-pageSize="@ViewData["CurrentPageSize"]"
-                               asp-route-sortOrder="@ViewData["ImportantFilter"]"
+                               asp-route-sortOrder="Important"
                                asp-route-currentFilter="@ViewData["CurrentFilter"]">
                                 Important
                             </a>
-
-                            <a class="btn btn-primary @doing"
-                               data-title="Doing"
+                            <a class="btn btn-light @notImportant"
                                asp-action="Index"
                                asp-route-pageSize="@ViewData["CurrentPageSize"]"
-                               asp-route-sortOrder="@ViewData["StatusFilter"]"
+                               asp-route-sortOrder="NotImportant"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                                Not important
+                            </a>
+
+                            <a class="btn btn-primary @doing"
+                               asp-action="Index"
+                               asp-route-pageSize="@ViewData["CurrentPageSize"]"
+                               asp-route-sortOrder="Doing"
                                asp-route-currentFilter="@ViewData["CurrentFilter"]">
                                 Doing
                             </a>
 
                             <a class="btn btn-success @done"
-                               data-title="Done"
                                asp-action="Index"
                                asp-route-pageSize="@ViewData["CurrentPageSize"]"
-                               asp-route-sortOrder="@ViewData["StatusFilter"]"
+                               asp-route-sortOrder="Done"
                                asp-route-currentFilter="@ViewData["CurrentFilter"]">
                                 Done
                             </a>
                         </div>
                     </div>
 
-                    <div style="margin-right: 5px">
+                    <div class="input-group">
+
                         <input id="searchString" class="form-control" type="search" name="searchString" placeholder="Title Search..." value="@ViewData["CurrentFilter"]">
+
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-secondary" asp-route-pageSize="@ViewData["CurrentPageSize"]">Search</button>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-secondary" asp-route-pageSize="@ViewData["CurrentPageSize"]">Search</button>
 
                 </form>
             </div>
@@ -85,6 +94,8 @@
         <table id="table" class="table">
             <thead>
                 <tr>
+                    <th style="width:31px; min-width: 31px">
+                    </th>
                     <th style="width:451px; min-width: 400px">
                         <a asp-action="Index"
                            asp-route-sortOrder="@ViewData["TitleSortParam"]"
@@ -112,7 +123,7 @@
                     <th style="min-width:151px; width:151px">
                         Status
                     </th>
-                    <th style="min-width:131px; width:131px"></th>
+                    <th style="min-width:120px; width:120px"></th>
                 </tr>
             </thead>
             <tbody>
@@ -121,8 +132,18 @@
                     @foreach (var item in Model.Tasks)
                     {
                         <tr>
-                            <th>@Html.DisplayFor(modelItem => item.Title)</th>
                             <th>
+                                @if (item.ActiveStatus == "Doing")
+                                {
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="Check(@item.TaskId)" title="Check"><i class="fa fa-check"></i> </button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-success btn-sm" onclick="Uncheck(@item.TaskId)" title="Uncheck" id="uncheckButton"><span><i class="fa fa-check"></i></span> </button>
+                                }
+                            </th>
+                            <th class="cropTitle"> @Html.DisplayFor(modelItem => item.Title)</th>
+                            <th class="crop">
                                 @if (item.UserId == UserManager.GetUserId(User))
                                 {
                                     <p style="margin:auto">You</p>
@@ -132,7 +153,7 @@
                                     @Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.UserId).Result.FullName)
                                 }
                             </th>
-                            <th>
+                            <th class="crop">
                                 @if (item.AssignUserId == UserManager.GetUserId(User))
                                 {
                                     <p style="margin:auto">You</p>
@@ -147,7 +168,7 @@
                                 }
                             </th>
 
-                            <th>
+                            <th class="crop">
                                 @if (item.ActiveStatus == "Doing")
                                 {
                                     <span class="badge badge-primary">Doing</span>
@@ -174,16 +195,20 @@
 
                                     }
                                     <form asp-controller="Todo">
-                                        <a asp-action="Edit" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm @dis" title="Edit"><i class="fa fa-edit"></i> </a>
-                                        <a asp-action="Details" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm" title="Details"><i class="fa fa-eye"></i> </a>
-                                        @if (dis == "" || User.IsInRole(Constants.AdminRole))
-                                        {
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="Delete(@item.TaskId)" title="Delete"><i class="fa fa-trash-alt"></i> </button>
-                                        }
-                                        else
-                                        {
-                                            <button type="button" class="btn btn-danger btn-sm" @dis><i class="fa fa-trash-alt" title="Delete"></i> </button>
-                                        }
+                                        <div class="input-group">
+                                            <div class="btn-group">
+                                                <a asp-action="Edit" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm @dis" title="Edit"><i class="fa fa-edit"></i> </a>
+                                                <a asp-action="Details" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm"><i class="fa fa-eye"></i> </a>
+                                                @if (dis == "" || User.IsInRole(Constants.AdminRole))
+                                                {
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="Delete(@item.TaskId)" title="Delete"><i class="fa fa-trash-alt"></i> </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-danger btn-sm" @dis><i class="fa fa-trash-alt" title="Delete"></i> </button>
+                                                }
+                                            </div>
+                                        </div>
                                     </form>
                                 </div>
                             </th>
@@ -193,7 +218,7 @@
                 else
                 {
                     <tr>
-                        <th colspan="4">
+                        <th colspan="5">
                             <h3 class="text-center"><b>Oops </b>There is nothing to Show !</h3>
                             <h4 class="text-center">Please change your filter</h4>
                         </th>
@@ -292,8 +317,8 @@ else
             <div class="modal-body text-center">
                 <h4>Delete!</h4>
                 <p>Are you sure you want to delete this task ?</p>
-                <button class="btn btn-outline-danger" style="background-color: #47c9a2; margin-right:2em" id="confirm"> <i class="fa fa-lg fa-check"></i></button>
-                <button class="btn btn-outline-secondary" style="background-color: #e85e6c" data-dismiss="modal"><i class="fa fa-lg fa-ban"></i></button>
+                <button class="btn" style="background-color: #47c9a2; margin-right:2em" id="confirm"> <i class="fa fa-lg fa-check"></i></button>
+                <button class="btn" style="background-color: #e85e6c" data-dismiss="modal"><i class="fa fa-lg fa-ban"></i></button>
             </div>
         </div>
     </div>
@@ -311,7 +336,7 @@ else
             <div class="modal-body text-center">
                 <h4>Please verify !</h4>
                 <p>
-                    Thanks for joining! <br />
+                    Thanks for joining ! <br />
                     We sent you an email to <b>@TempData["Email"]</b> <br /> Please verify your email address.
                 </p>
                 <button class="btn btn-success" style="background-color: #FEE715FF; color:#101820FF; border: 2px solid #101820FF;" data-dismiss="modal"><span style="-webkit-text-stroke:medium"> Ok </span></button>
@@ -330,9 +355,45 @@ else
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
             <div class="modal-body text-center">
-                <h4>Awesome!</h4>
+                <h4>Awesome !</h4>
                 <p>your email address has been successfully verified !</p>
                 <button class="btn btn-success" data-dismiss="modal"><span>Start Exploring</span> <i class="fa fa-angle-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="check" class="modal fade">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #47c9a2;">
+                <div class="icon-box">
+                    <i class="fa fa-3x fa-thumbs-up"></i>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <h4>Awesome !</h4>
+                <p>You did it ! </p>
+                <button class="btn" style="background-color: #47c9a2;" id="confirmCheck">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="uncheck" class="modal fade">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #e85e6c;">
+                <div class="icon-box">
+                    <i class="fa fa-3x fa-thumbs-down"></i>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <h4>Reopen!</h4>
+                <p>Do you really want to reopen this Todo ? </p>
+                <button class="btn" style="background-color: #e85e6c;" id="confirmUncheck">Continue</button>
             </div>
         </div>
     </div>
@@ -348,6 +409,38 @@ else
                 $.ajax({
                     type: "POST",
                     url: `/Todo/Delete/${id}`,
+                    success: function () {
+
+                        window.location.href = "/Todo/Index" + "/?pageSize=" + @ViewData["CurrentPageSize"];
+                    }
+                });
+            });
+        }
+    </script>
+
+    <script>
+        var Check = function (id) {
+            $("#check").modal("show");
+            $("#confirmCheck").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: `/Todo/Check/${id}`,
+                    success: function () {
+
+                        window.location.href = "/Todo/Index" + "/?pageSize=" + @ViewData["CurrentPageSize"];
+                    }
+                });
+            });
+        }
+    </script>
+
+    <script>
+        var Uncheck = function (id) {
+            $("#uncheck").modal("show");
+            $("#confirmUncheck").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: `/Todo/Uncheck/${id}`,
                     success: function () {
 
                         window.location.href = "/Todo/Index" + "/?pageSize=" + @ViewData["CurrentPageSize"];

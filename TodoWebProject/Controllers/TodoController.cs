@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
@@ -50,6 +51,7 @@ namespace TodoWebProjekt.Controllers
         /// <param name="pageNumber"> The number that contains the page you are currently on. </param>
         /// <param name="pageSize"> The amount of items on a page. </param>
         /// <returns> The index view. </returns>
+        [AllowAnonymous]
         public IActionResult Index(string sortOrder, string searchString, string currentFilter, int? pageNumber, int pageSize = 3)
          {
             var createViewModel = new IndexViewModel();
@@ -60,8 +62,6 @@ namespace TodoWebProjekt.Controllers
             ViewData["AuthorSortParam"] = string.IsNullOrEmpty(sortOrder) ? "Author_Desc" : "Author";
             ViewData["AssignSortParam"] = string.IsNullOrEmpty(sortOrder) ? "Assign_Desc" : "Assign";
             ViewData["ImportantFilter"] = string.IsNullOrEmpty(sortOrder) ? "Important" : "NotImportant";
-            ViewData["StatusFilter"] = string.IsNullOrEmpty(sortOrder) ? "Doing" : "Done";
-
 
             if (searchString != null)
             {
@@ -141,7 +141,6 @@ namespace TodoWebProjekt.Controllers
                 case "Done":
                     {
                         tasks = tasks.Where(t => t.ActiveStatus == "Done");
-                        ViewData["StatusFilter"] = "Doing";
                         break;
                     }
 
@@ -179,6 +178,7 @@ namespace TodoWebProjekt.Controllers
             }
 
             var details = await _todoRepository.GetFileTaskViewModel(id).ConfigureAwait(true);
+            details.AuthorProfilePicture = await _todoRepository.GetProfilePicture(details.Task.UserId);
             return details == null ? NotFound() : (IActionResult)View(details);
         }
 
@@ -214,6 +214,13 @@ namespace TodoWebProjekt.Controllers
 
             if (image != null)
             {
+                if (image.ContentType.IndexOf("image", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    ModelState.AddModelError(string.Empty, "This file is not an image");
+
+                    return View(fileTaskViewModel);
+                }
+
                 if (fileTaskViewModel != null)
                 {
                     fileTaskViewModel.File = new File
@@ -379,6 +386,88 @@ namespace TodoWebProjekt.Controllers
 
             var result = await _todoRepository.Delete(id).ConfigureAwait(true);
             return result == 0 ? BadRequest("Delete dosn't work") : (IActionResult)RedirectToAction("Index");
+        }
+
+        /// <summary>
+        /// Check a Todo Database entry with specific Id.
+        /// </summary>
+        /// <param name="id"> The uniq Id of the Todo you want to Delete. </param>
+        /// <returns> If all gone right it will be refresh the index view. </returns>
+        [HttpPost]
+        public async Task<IActionResult>Check(int? id)
+        {
+            if (id == null)
+            {
+                return BadRequest("Id is null");
+            }
+
+            var fileTaskViewModel = await _todoRepository.GetFileTaskViewModel(id).ConfigureAwait(true);
+            if (fileTaskViewModel == null)
+            {
+                return BadRequest("Wrong id");
+            }
+
+            var task = fileTaskViewModel.Task;
+
+            var isAuthorized =
+                await _authorizationService.AuthorizeAsync(User, task, TaskOperations.Update).ConfigureAwait(true);
+            if (!isAuthorized.Succeeded && !User.IsInRole(Constants.AdminRole))
+            {
+                return RedirectToAction("AccountError", "Account", new
+                {
+                    firstLine = "Authentication",
+                    secondLine = "problem",
+                });
+            }
+
+            if (fileTaskViewModel.Task.ActiveStatus == "Doing")
+            {
+                fileTaskViewModel.Task.ActiveStatus = "Done";
+            }
+
+            var result = await _todoRepository.Update(fileTaskViewModel).ConfigureAwait(true);
+            return result == 0 ? BadRequest("Update dosn't work") : (IActionResult)RedirectToAction("Index");
+        }
+
+        /// <summary>
+        /// Uncheck a Todo Database entry with specific Id.
+        /// </summary>
+        /// <param name="id"> The uniq Id of the Todo you want to Delete. </param>
+        /// <returns> If all gone right it will be refresh the index view. </returns>
+        [HttpPost]
+        public async Task<IActionResult> Uncheck(int? id)
+        {
+            if (id == null)
+            {
+                return BadRequest("Id is null");
+            }
+
+            var fileTaskViewModel = await _todoRepository.GetFileTaskViewModel(id).ConfigureAwait(true);
+            if (fileTaskViewModel == null)
+            {
+                return BadRequest("Wrong id");
+            }
+
+            var task = fileTaskViewModel.Task;
+
+            var isAuthorized =
+                await _authorizationService.AuthorizeAsync(User, task, TaskOperations.Update).ConfigureAwait(true);
+            if (!isAuthorized.Succeeded && !User.IsInRole(Constants.AdminRole))
+            {
+                return RedirectToAction("AccountError", "Account", new
+                {
+                    firstLine = "Authentication",
+                    secondLine = "problem",
+                });
+            }
+
+            if (fileTaskViewModel.Task.ActiveStatus == "Done")
+            {
+                fileTaskViewModel.Task.ActiveStatus = "Doing";
+            }
+
+            var result = await _todoRepository.Update(fileTaskViewModel).ConfigureAwait(true);
+            return result == 0 ? BadRequest("Update dosn't work") : (IActionResult)RedirectToAction("Index");
         }
     }
 }

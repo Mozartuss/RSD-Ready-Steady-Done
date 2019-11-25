@@ -14,8 +14,9 @@
             <input asp-for="Task.TaskId" type="hidden">
             <input asp-for="Task.UserId" type="hidden">
 
+            <!--Title-->
 
-            <div class="form-group">
+            <div class="form-group has-feedback">
                 <label asp-for="Task.Title" class="col-md-auto"> Title</label>
 
                 <div class="col-md-auto">
@@ -25,6 +26,8 @@
                 </div>
             </div>
 
+            <!--Description-->
+
             <div class="form-group">
                 <label asp-for="Task.Description" class="col-md-auto"> Description</label>
 
@@ -33,6 +36,8 @@
                     <span asp-validation-for="Task.Description" class="text-danger"></span>
                 </div>
             </div>
+
+            <!--Assign-->
 
             <div class="form-group">
                 <label asp-for="AssignUserId" class="col-md-auto">Align somebody to your TODO</label>
@@ -46,6 +51,9 @@
 
             <div class="form-group">
                 <div class="input-group col-md-auto">
+
+                    <!--Status-->
+
                     <div style="width:50%">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="activeCheck" asp-for="Active">
@@ -61,6 +69,8 @@
                             <label class="custom-file-label">Choose file...</label>
                         </div>
                     </div>
+
+                    <!--Image-->
 
                     <div class="col-md-auto" style="float:right; width: 50%">
                         @if (Model.File != null && Model.File.Image != null)
@@ -78,10 +88,12 @@
                 </div>
             </div>
 
+            <!--Buttons-->
+
             <div class="form-group">
                 <div>
-                    <button type="submit" class="btn btn-success">Save</button>
-                    <button class="btn btn-outline-danger" type="submit" asp-action="Index">Cancel</button>
+                    <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Save</button>
+                    <button class="btn btn-outline-danger" type="submit" asp-action="Index"><i class="fa fa-ban"></i> Cancel</button>
                 </div>
             </div>
         </div>

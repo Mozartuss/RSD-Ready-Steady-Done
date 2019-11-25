@@ -26,7 +26,7 @@
             <label asp-for="Task.Description" class="col-md-auto"> Description</label>
 
             <div class="col-md-auto">
-                <textarea asp-for="Task.Description" class="form-control" id="Description" rows="3" onkeyup="charcountupdate(this.value)"></textarea>
+                <textarea asp-for="Task.Description" class="form-control" id="Description" rows="3" onkeyup="charcountupdate(this.value)" maxlength="1000"></textarea>
                 <span id="charcount"></span>
                 <br />
                 <span asp-validation-for="Task.Description" class="text-danger"></span>
@@ -68,7 +68,7 @@
 
         <div class="form-group">
             <div class="col-md-auto">
-                <input type="submit" value="Create" class="btn btn-success" id="saveButton" />
+                <button type="submit" class="btn btn-success" id="saveButton"><i class="fa fa-check"></i> Create</button>
                 <a asp-controller="Todo" asp-action="Index" class="btn btn-outline-danger"> <i class="fa fa-ban"></i> Cancel</a>
             </div>
         </div>

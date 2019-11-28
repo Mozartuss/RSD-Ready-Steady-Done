@@ -605,8 +605,8 @@ body {
 }
 
 #radioBtn .notActive {
-    color: #3276b1;
-    border-color: #3276b1;
+    border-color: #6c757d;
+    color: #6c757d;
     background-color: #fff;
 }
 
@@ -618,39 +618,102 @@ body {
     object-fit: cover;
     object-position: center;
 }
+
 .pass-wrapper {
     width: 310px
 }
 
 .card-image-top {
-    height:500px;
-    width : 100%;
+    height: 500px;
+    width: 100%;
     object-fit: contain;
 }
 
-#uncheckButton:hover {
+#uncheckButton {
     color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
+    background-color: #28a745;
+    border-color: #28a745;
 }
 
-    #uncheckButton:hover span {
-        display:none
+    #uncheckButton span {
+        display: none
     }
 
-    #uncheckButton:hover:before {
-
+    #uncheckButton:before {
         font-family: "Font Awesome 5 Free";
         font-weight: 900;
-        content: "\f05e"
+        content: "\f00c"
     }
+
+    #uncheckButton:hover {
+        color: #fff;
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+        #uncheckButton:hover span {
+            display: none
+        }
+
+        #uncheckButton:hover:before {
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            content: "\f05e"
+        }
+
+#checkButton {
+    color: transparent;
+    border-color: #545b62;
+    border-style: dashed
+}
+
+    #checkButton:hover {
+        color: #fff;
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+        #checkButton:hover span {
+            display: none
+        }
+
+        #checkButton:hover:before {
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            content: "\f00c"
+        }
+
+
+#important_sort:hover {
+    color: #fff;
+    background-color: #bd2130;
+    border-color: #b21f2d;
+}
+
+#not_important_sort:hover {
+    color: #6c757d;
+    background-color: #dae0e5;
+    border-color: #dae0e5;
+}
+
+#doing_sort:hover {
+    color: #fff;
+    background-color: #0062cc;
+    border-color: #005cbf;
+}
+
+#done_sort:hover {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+}
 
 .cropTitle {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     width: 451px;
-    max-width:451px;
+    max-width: 451px;
 }
 
 .crop {
@@ -659,4 +722,3 @@ body {
     overflow: hidden;
     max-width: 151px;
 }
-

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using TodoWebProjekt.Controllers;
 using TodoWebProjekt.Email;
+using TodoWebProjekt.Models;
 using TodoWebProjekt.Test.Helper;
 using TodoWebProjekt.ViewModel;
 using Xunit;
@@ -14,13 +15,15 @@ namespace TodoWebProjekt.Test
     public class UnitTestAccountControllerSingIn
     {
         [Fact]
-        public async Task Task_Login_Return_BadRequest_Invalid()
+        public async System.Threading.Tasks.Task Task_Login_Return_BadRequest_Invalid()
         {
             // Arrange
-            using var controller = new AccountController(AccountConttrollerHelper.GetMockUserManager().Object,
+            using var controller = new AccountController(
+                AccountConttrollerHelper.GetMockUserManager().Object,
                 AccountConttrollerHelper.GetMockSignInManager().Object,
                 AccountConttrollerHelper.GetMockRoleManager().Object,
-            new Mock<IEmailSender>().Object);
+            new Mock<IEmailSender>().Object,
+            new Mock<TODOContext>().Object);
             controller.ModelState.AddModelError("Email", "Required");
 
             // Act
@@ -38,7 +41,8 @@ namespace TodoWebProjekt.Test
             using var controller = new AccountController(AccountConttrollerHelper.GetMockUserManager().Object,
                 AccountConttrollerHelper.GetMockSignInManager().Object,
                 AccountConttrollerHelper.GetMockRoleManager().Object,
-            new Mock<IEmailSender>().Object);
+            new Mock<IEmailSender>().Object,
+            new Mock<TODOContext>().Object);
 
             // Act
             var result = controller.Login((string)null);
@@ -55,7 +59,7 @@ namespace TodoWebProjekt.Test
         }
 
         [Fact]
-        public async Task Task_Login_Return_RedirectToAction_LoginSuccess()
+        public async System.Threading.Tasks.Task Task_Login_Return_RedirectToAction_LoginSuccess()
         {
             // Arrange
             var mockSignInManager = AccountConttrollerHelper.GetMockSignInManager();
@@ -65,8 +69,8 @@ namespace TodoWebProjekt.Test
                         It.IsAny<bool>())).ReturnsAsync(SignInResult.Success);
             using var controller = new AccountController(AccountConttrollerHelper.GetMockUserManager().Object,
                 mockSignInManager.Object, AccountConttrollerHelper.GetMockRoleManager().Object,
-            new Mock<IEmailSender>().Object);
-
+            new Mock<IEmailSender>().Object,
+            new Mock<TODOContext>().Object);
             // Act
             var result = await controller.Login(new LoginViewModel());
 

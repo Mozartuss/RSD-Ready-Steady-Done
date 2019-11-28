@@ -12,6 +12,20 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
+
+
+    var current = (string)ViewData["CurrentSort"];
+    var all = string.IsNullOrEmpty(current) ? "active" : "notActive";
+    var important = current == "Important" ? "active" : "notActive";
+    var notImportant = current == "NotImportant" ? "active" : "notActive";
+    var done = current == "Done" ? "active" : "notActive";
+    var doing = current == "Doing" ? "active" : "notActive";
+    var title_arrow = current != "Title" && current != "Title_Desc" ? "" : current == "Title_Desc" ? "fa fa-arrow-down" : "fa fa-arrow-up";
+    var author_arrow = current != "Author" && current != "Author_Desc" ? "" : current == "Author_Desc" ? "fa fa-arrow-down" : "fa fa-arrow-up";
+    var assign_arrow = current != "Assign" && current != "Assign_Desc" ? "" : current == "Assign_Desc" ? "fa fa-arrow-down" : "fa fa-arrow-up";
+
+
+
     <h2 style="font-stretch: semi-condensed; text-align: center;">TODOS</h2>
 
     <h5 style="font-stretch: semi-condensed; text-align: center;" id="OnlineUsers"></h5>
@@ -20,22 +34,16 @@
     <div class="container">
         <div>
             <div style="float: left">
-                <a asp-controller="Todo" asp-action="Create" class="btn btn-success" m-1>Add</a>
+                <a asp-controller="Todo" asp-action="Create" class="btn btn-outline-secondary" m-1>Add</a>
             </div>
             <div style="float: right;">
                 <form asp-controller="Todo" asp-action="Index" class="form-inline my-2 my-lg-0" method="get" asp-route-pageSize="@ViewData["CurrentPageSize"]">
                     <div class="input-group" style="margin-right: 5px">
                         <div class="btn-group" id="radioBtn">
-                            @{
-                                var current = (string)ViewData["CurrentSort"];
-                                var all = string.IsNullOrEmpty(current) ? "active" : "notActive";
-                                var important = current == "Important" ? "active" : "notActive";
-                                var notImportant = current == "NotImportant" ? "active" : "notActive";
-                                var done = current == "Done" ? "active" : "notActive";
-                                var doing = current == "Doing" ? "active" : "notActive";
-                            }
+
 
                             <a class="btn btn-secondary @all"
+                               id="all_sort"
                                asp-action="Index"
                                asp-route-pageSize="@ViewData["CurrentPageSize"]"
                                asp-route-sortOrder=""
@@ -44,6 +52,7 @@
                             </a>
 
                             <a class="btn btn-danger @important"
+                               id="important_sort"
                                asp-action="Index"
                                asp-route-pageSize="@ViewData["CurrentPageSize"]"
                                asp-route-sortOrder="Important"
@@ -51,6 +60,7 @@
                                 Important
                             </a>
                             <a class="btn btn-light @notImportant"
+                               id="not_important_sort"
                                asp-action="Index"
                                asp-route-pageSize="@ViewData["CurrentPageSize"]"
                                asp-route-sortOrder="NotImportant"
@@ -59,6 +69,7 @@
                             </a>
 
                             <a class="btn btn-primary @doing"
+                               id="doing_sort"
                                asp-action="Index"
                                asp-route-pageSize="@ViewData["CurrentPageSize"]"
                                asp-route-sortOrder="Doing"
@@ -67,6 +78,7 @@
                             </a>
 
                             <a class="btn btn-success @done"
+                               id="done_sort"
                                asp-action="Index"
                                asp-route-pageSize="@ViewData["CurrentPageSize"]"
                                asp-route-sortOrder="Done"
@@ -102,6 +114,7 @@
                            asp-route-currentFilter="@ViewData["CurrentFilter"]"
                            asp-route-pageSize="@ViewData["CurrentPageSize"]">
                             Title
+                            <i class="@title_arrow"></i>
                         </a>
                     </th>
                     <th>
@@ -110,6 +123,7 @@
                            asp-route-currentFilter="@ViewData["CurrentFilter"]"
                            asp-route-pageSize="@ViewData["CurrentPageSize"]">
                             Author
+                            <i class="@author_arrow"></i>
                         </a>
                     </th>
                     <th>
@@ -118,6 +132,7 @@
                            asp-route-currentFilter="@ViewData["CurrentFilter"]"
                            asp-route-pageSize="@ViewData["CurrentPageSize"]">
                             Assign
+                            <i class="@assign_arrow"></i>
                         </a>
                     </th>
                     <th style="min-width:151px; width:151px">
@@ -135,7 +150,7 @@
                             <th>
                                 @if (item.ActiveStatus == "Doing")
                                 {
-                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="Check(@item.TaskId)" title="Check"><i class="fa fa-check"></i> </button>
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="Check(@item.TaskId)" title="Check" id="checkButton"><span><i class="fa fa-check"></i></span> </button>
                                 }
                                 else
                                 {

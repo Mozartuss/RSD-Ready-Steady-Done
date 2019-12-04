@@ -645,21 +645,27 @@ body {
         content: "\f00c"
     }
 
-    #uncheckButton:hover {
+    #uncheckButton:hover, #uncheckButton:focus {
         color: #fff;
         background-color: #dc3545;
         border-color: #dc3545;
     }
 
-        #uncheckButton:hover span {
+    #uncheckButton:focus {
+        box-shadow: 0 0 0 0.2rem rgba(225, 83, 97, 0.5);
+    }
+
+        #uncheckButton:hover span, #uncheckButton:focus span {
             display: none
         }
 
-        #uncheckButton:hover:before {
+        #uncheckButton:hover:before, #uncheckButton:focus:before {
             font-family: "Font Awesome 5 Free";
             font-weight: 900;
             content: "\f05e"
         }
+
+
 
 #checkButton {
     color: transparent;
@@ -667,21 +673,27 @@ body {
     border-style: dashed
 }
 
-    #checkButton:hover {
+    #checkButton:hover, #checkButton:focus {
         color: #fff;
         background-color: #28a745;
         border-color: #28a745;
     }
 
-        #checkButton:hover span {
+    #checkButton:focus {
+        box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5);
+    }
+
+        #checkButton:hover span, #checkButton:focus span {
             display: none
         }
 
-        #checkButton:hover:before {
+        #checkButton:hover:before, #checkButton:focus:before {
             font-family: "Font Awesome 5 Free";
             font-weight: 900;
             content: "\f00c"
         }
+
+
 
 
 #important_sort:hover {
@@ -721,4 +733,26 @@ body {
     white-space: nowrap;
     overflow: hidden;
     max-width: 151px;
+}
+
+.zerowidth {
+    width: 0px;
+    padding-left: 0;
+    padding-right: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#searchString {
+    border-color: #6c757d;
+}
+
+#clear, #searchString {
+    transition: width 0.2s ease-out;
+}
+
+.clear-button-width {
+    width: 42px;
 }

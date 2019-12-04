@@ -1,0 +1,282 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using TodoWebProjekt.Authorization
+@model TodoWebProjekt.ViewModel.IndexViewModel
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IAuthorizationService AuthorizationService
+
+@{
+    var current = (string)ViewData["CurrentSort"];
+    var cF = (string)ViewData["CurrentFilter"];
+    var all = current == "null" | current == null | cF == "null" | string.IsNullOrEmpty(cF) ? "active" : "notActive";
+    var important = current == "Important" ? "active" : "notActive";
+    var notImportant = current == "NotImportant" ? "active" : "notActive";
+    var done = current == "Done" ? "active" : "notActive";
+    var doing = current == "Doing" ? "active" : "notActive";
+    var title_arrow = current != "Title" && current != "Title_Desc" ? "" : current == "Title_Desc" ? "fa fa-arrow-down" : "fa fa-arrow-up";
+    var author_arrow = current != "Author" && current != "Author_Desc" ? "" : current == "Author_Desc" ? "fa fa-arrow-down" : "fa fa-arrow-up";
+    var assign_arrow = current != "Assign" && current != "Assign_Desc" ? "" : current == "Assign_Desc" ? "fa fa-arrow-down" : "fa fa-arrow-up";
+    var currentSort = string.IsNullOrEmpty(current) ? "null" : (string)current;
+    var currentFilter = string.IsNullOrEmpty(cF) ? "null" : cF;
+    var searchText = cF != "Important" | cF != "NotImportant" | cF != "Doing" | cF != "Done" ? cF : "";
+}
+
+<div class="container">
+    <div>
+        <div style="float: left">
+            <a asp-controller="Todo" asp-action="Create" class="btn btn-outline-secondary" m-1>Add</a>
+        </div>
+        <div style="float: right;">
+            <div class="form-inline my-2 my-lg-0">
+                <div class="input-group" style="margin-right: 5px">
+                    <div class="btn-group" id="radioBtn">
+                        <button class="btn btn-secondary @all"
+                                onclick="Sort('null', @ViewData["currentPageSize"])"
+                                id="all_sort"
+                                type="button"
+                                title="All">
+                            All
+                        </button>
+
+                        <button class="btn btn-danger @important"
+                                onclick="Sort('Important', @ViewData["currentPageSize"])"
+                                id="important_sort"
+                                type="button"
+                                title="Important">
+                            Important
+                        </button>
+                        <button class="btn btn-light @notImportant"
+                                onclick="Sort('NotImportant', @ViewData["currentPageSize"])"
+                                id="not_important_sort"
+                                type="button"
+                                title="Not Important">
+                            Not Important
+                        </button>
+
+                        <button class="btn btn-primary @doing"
+                                onclick="Sort('Doing', @ViewData["currentPageSize"])"
+                                id="doing_sort"
+                                type="button"
+                                title="Doing">
+                            Doing
+                        </button>
+
+                        <button class="btn btn-success @done"
+                                onclick="Sort('Done', @ViewData["currentPageSize"])"
+                                id="done_sort"
+                                type="button"
+                                title="Done">
+                            Done
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group" style="width: 277px;max-width: 277px;min-width: 277px;">
+
+                    <input id="searchString" class="form-control search-box" type="text" name="searchString" placeholder="Title Search on current Page..." value="@searchText" onkeyup="Search()" autocomplete="off">
+
+                    <div class="input-group-append">
+                        <button id="clear" class="btn btn-secondary zerowidth" onclick="Filter('',@ViewData["CurrentPageSize"],'',0,true)"><span class="fa fa-times-circle"></span></button>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+
+    <table id="table" class="table">
+        <thead>
+            <tr>
+                <th style="width:31px; min-width: 31px"></th>
+                <th style="width:451px; min-width: 400px">
+                    <a onclick="Filter('@ViewData["TitleSortParam"]',@ViewData["CurrentPageSize"],'@currentFilter',0)" href=#>
+                        Title
+                        <i class="@title_arrow"></i>
+                    </a>
+                </th>
+                <th>
+                    <a onclick="Filter('@ViewData["AuthorSortParam"]',@ViewData["CurrentPageSize"],'@currentFilter',0)" href=#>
+                        Author
+                        <i class="@author_arrow"></i>
+                    </a>
+                </th>
+                <th>
+
+                    <a onclick="Filter('@ViewData["AssignSortParam"]',@ViewData["CurrentPageSize"],'@currentFilter',0)" href=#>
+
+
+                        Assign
+                        <i class="@assign_arrow"></i>
+                    </a>
+                </th>
+                <th style="min-width:151px; width:151px">
+                    Status
+                </th>
+                <th style="min-width:120px; width:120px"></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model.Tasks)
+            {
+                <tr>
+                    <td>
+                        @if (item.ActiveStatus == "Doing")
+                        {
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="Check(@item.TaskId)" title="Check" id="checkButton"><span><i class="fa fa-check"></i></span> </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-success btn-sm" onclick="Uncheck(@item.TaskId)" title="Uncheck" id="uncheckButton"><span><i class="fa fa-check"></i></span> </button>
+                        }
+                    </td>
+                    <td class="cropTitle filter"> @Html.DisplayFor(modelItem => item.Title)</td>
+                    <td class="crop">
+                        @if (item.UserId == UserManager.GetUserId(User))
+                        {
+                            <p style="margin:auto">You</p>
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.UserId).Result.FullName)
+                        }
+                    </td>
+                    <td class="crop">
+                        @if (item.AssignUserId == UserManager.GetUserId(User))
+                        {
+                            <p style="margin:auto">You</p>
+                        }
+                        else if (item.AssignUserId == "null")
+                        {
+                            <p style="margin:auto">---</p>
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItrem => UserManager.FindByIdAsync(item.AssignUserId).Result.FullName)
+                        }
+                    </td>
+
+                    <td class="crop">
+                        @if (item.ActiveStatus == "Doing")
+                        {
+                            <span class="badge badge-primary">Doing</span>
+                        }
+                        else if (item.ActiveStatus == "Done")
+                        {
+                            <span class="badge badge-success"> Done</span>
+                        }
+                        @if (item.ImportanceStatus == "Important")
+                        {
+                            <span class="badge badge-danger"> Important</span>
+                        }
+                    </td>
+
+                    <td>
+                        <div style="float: right;">
+
+                            @{
+
+                                string itemUserId = item.UserId;
+                                string currentUserId = UserManager.GetUserId(User);
+                                var dis = itemUserId != currentUserId && !User.IsInRole(Constants.AdminRole) ? "disabled" : "";
+
+                            }
+                            <form asp-controller="Todo">
+                                <div class="input-group">
+                                    <div class="btn-group">
+                                        <a asp-action="Edit" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm @dis" title="Edit"><i class="fa fa-edit"></i> </a>
+                                        <a asp-action="Details" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm"><i class="fa fa-eye"></i> </a>
+                                        @if (dis == "" || User.IsInRole(Constants.AdminRole))
+                                        {
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="Delete(@item.TaskId)" title="Delete"><i class="fa fa-trash-alt"></i> </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-danger btn-sm" @dis><i class="fa fa-trash-alt" title="Delete"></i> </button>
+                                        }
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+
+            <tr class="notthingShow" style="display:none">
+                <td colspan="6">
+                    <h3 class="text-center"><b>Oops </b>There is nothing to Show !</h3>
+                    <h4 class="text-center">Please change your filter</h4>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <div>
+        <ul class="pagination">
+
+            @{
+                var prevDisabled = !Model.Tasks.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.Tasks.HasNextPage ? "disabled" : "";
+            }
+
+            <li class="page-item @prevDisabled">
+                <button onclick="Filter('@currentSort',@ViewData["currentPageSize"],'@currentFilter',@(Model.Tasks.PageIndex - 1))"
+                        class="page-link"
+                        title="Previous Page">
+                    &laquo; Previous
+                </button>
+            </li>
+
+            <li class="page-item @nextDisabled">
+                <button onclick="Filter('@currentSort',@ViewData["currentPageSize"],'@currentFilter',@(Model.Tasks.PageIndex + 1))"
+                        class="page-link"
+                        title="Next Page">
+                    Next &raquo;
+                </button>
+            </li>
+
+
+            <li>
+                <div class="btn-group" role="group">
+                    <button id="pageSize" class="page-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Amount of pageitems">
+                        @if ((int)ViewData["currentPageSize"] > 10)
+                        {
+                            <span>All</span>
+                        }
+                        else
+                        {
+                            <span>@ViewData["currentPageSize"]</span>
+                        }
+
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="pageSize">
+                        <button class="dropdown-item"
+                                onclick="Filter('@currentSort',3,'@currentFilter',0)"
+                                title="3">
+                            3
+                        </button>
+                        <button class="dropdown-item" onclick="Filter('@currentSort',5,'@currentFilter',0)" title="5">5</button>
+                        <button class="dropdown-item" onclick="Filter('@currentSort',10,'@currentFilter',0)" title="10">10</button>
+                        <button class="dropdown-item" onclick="Filter('@currentSort',0,'@currentFilter',0)" title="All">All</button>
+                    </div>
+                </div>
+
+            </li>
+        </ul>
+    </div>
+</div>
+
+@section Scripts{
+    @if (Model.Tasks.Count < 1)
+    {
+        <script>
+            $('.notthingShow').show();
+        </script>
+    }
+}
+
+

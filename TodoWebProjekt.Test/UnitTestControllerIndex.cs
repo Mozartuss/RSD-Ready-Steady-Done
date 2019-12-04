@@ -74,7 +74,7 @@ namespace TodoWebProjekt.Test
             };
 
             //Act
-            var result = controller.Index(null, null, null, null);
+            var result = controller.Index();
 
             //Assert
             var viewResult = Assert.IsType<ViewResult>(result);
@@ -105,7 +105,7 @@ namespace TodoWebProjekt.Test
             };
 
             //Act
-            var result = controller.Index(null, null, null, null);
+            var result = controller.Index();
 
             //Assert
             Assert.IsType<ViewResult>(result);

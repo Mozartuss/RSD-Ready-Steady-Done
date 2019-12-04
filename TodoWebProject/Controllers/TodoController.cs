@@ -26,6 +26,7 @@ namespace TodoWebProjekt.Controllers
     /// The controller class which contaons all the CRUD operations.
     /// </summary>
     [Authorize]
+
     public class TodoController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
@@ -43,31 +44,37 @@ namespace TodoWebProjekt.Controllers
         }
 
         /// <summary>
-        /// The Index/Main view where you see the tbale with all Todos, where you can sort, seach, and paginate the list.
+        /// The Index/Main view.
+        /// </summary>
+        /// <returns> The index view. </returns>
+        [AllowAnonymous]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Load the Todo list with all optional filters...
         /// </summary>
         /// <param name="sortOrder"> The sortOrder you get from the cshtml file. </param>
         /// <param name="searchString"> THe serach word you get from the cshtml file. </param>
         /// <param name="currentFilter"> The currentFilter which contains the currentSerach so you can refresh the page and didn't lose the old search. </param>
         /// <param name="pageNumber"> The number that contains the page you are currently on. </param>
         /// <param name="pageSize"> The amount of items on a page. </param>
-        /// <returns> The index view. </returns>
+        /// <returns> The todo list partial view. </returns>
         [AllowAnonymous]
-        public IActionResult Index(string sortOrder, string searchString, string currentFilter, int? pageNumber, int pageSize = 3)
-         {
+        public IActionResult LoadTodoList(string sortOrder, string searchString, string currentFilter, int? pageNumber, int pageSize = 5)
+        {
             var createViewModel = new IndexViewModel();
+
 
             ViewData["CurrentSort"] = sortOrder;
             ViewData["currentPageSize"] = pageSize;
             ViewData["TitleSortParam"] = string.IsNullOrEmpty(sortOrder) ? "Title_Desc" : "Title";
             ViewData["AuthorSortParam"] = string.IsNullOrEmpty(sortOrder) ? "Author_Desc" : "Author";
             ViewData["AssignSortParam"] = string.IsNullOrEmpty(sortOrder) ? "Assign_Desc" : "Assign";
-            ViewData["ImportantFilter"] = string.IsNullOrEmpty(sortOrder) ? "Important" : "NotImportant";
 
-            if (searchString != null)
-            {
-                pageNumber = 1;
-            }
-            else
+            if (searchString == null)
             {
                 searchString = currentFilter;
             }
@@ -162,8 +169,9 @@ namespace TodoWebProjekt.Controllers
             createViewModel.Tasks = PaginatedListCollection<Task>.Create(tasks.AsNoTracking(), pageNumber ?? 1, pageSize);
             createViewModel.Length = taskLength;
 
-            return View(createViewModel);
+            return PartialView("TodoList", createViewModel);
         }
+
 
         /// <summary>
         /// Show the Details view.
@@ -385,7 +393,7 @@ namespace TodoWebProjekt.Controllers
             }
 
             var result = await _todoRepository.Delete(id).ConfigureAwait(true);
-            return result == 0 ? BadRequest("Delete dosn't work") : (IActionResult)RedirectToAction("Index");
+            return result == 0 ? BadRequest("Delete dosn't work") : (IActionResult)RedirectToAction("LoadTodoList");
         }
 
         /// <summary>
@@ -394,7 +402,7 @@ namespace TodoWebProjekt.Controllers
         /// <param name="id"> The uniq Id of the Todo you want to Delete. </param>
         /// <returns> If all gone right it will be refresh the index view. </returns>
         [HttpPost]
-        public async Task<IActionResult>Check(int? id)
+        public async Task<IActionResult> Check(int? id)
         {
             if (id == null)
             {
@@ -426,7 +434,7 @@ namespace TodoWebProjekt.Controllers
             }
 
             var result = await _todoRepository.Update(fileTaskViewModel).ConfigureAwait(true);
-            return result == 0 ? BadRequest("Update dosn't work") : (IActionResult)RedirectToAction("Index");
+            return result == 0 ? BadRequest("Update dosn't work") : (IActionResult)RedirectToAction("LoadTodoList");
         }
 
         /// <summary>
@@ -467,7 +475,7 @@ namespace TodoWebProjekt.Controllers
             }
 
             var result = await _todoRepository.Update(fileTaskViewModel).ConfigureAwait(true);
-            return result == 0 ? BadRequest("Update dosn't work") : (IActionResult)RedirectToAction("Index");
+            return result == 0 ? BadRequest("Update dosn't work") : (IActionResult)RedirectToAction("LoadTodoList");
         }
     }
 }

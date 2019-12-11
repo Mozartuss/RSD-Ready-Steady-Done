@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TodoWebProjekt.Models;
 
@@ -48,5 +49,15 @@ namespace TodoWebProjekt.ViewModel
         /// Gets or sets a value indicating whether to the important status.
         /// </summary>
         public bool Important { get; set; }
+
+        /// <summary>
+        /// Gets or sets the image upload IFormFile.
+        /// </summary>
+        public IFormFile UploadImage { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to the Image status.
+        /// </summary>
+        public bool EmptyImage { get; set; }
     }
 }

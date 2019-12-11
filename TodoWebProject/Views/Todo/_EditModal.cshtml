@@ -1,0 +1,122 @@
+﻿@model TodoWebProjekt.ViewModel.FileTaskViewModel
+
+<div id="editModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="icon-box" style="color: #0062cc; border-color:#0062cc;">
+                    <i class="fa fa-3x fa-edit"></i>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color:#757575; opacity:1">&times;</button>
+                <span asp-validation-for="UploadImage" class="text-danger"></span>
+                <span asp-validation-for="Task" class="text-danger"></span>
+
+            </div>
+            <div class="modal-body">
+                <form id="EditForm" enctype="multipart/form-data" asp-action="Edit" onsubmit="UpdateTask(this);return false;">
+                    <div>
+                        <input asp-for="Task.TaskId" type="hidden">
+                        <input asp-for="Task.UserId" type="hidden">
+
+                        <!--Title-->
+                        <div class="material-group">
+                            <input asp-for="Task.Title" class="material-input" type="text" id="taskName" autocomplete="off" spellcheck="true" required />
+                            <span class="material-bar"></span>
+                            <label class="material-label">Title</label>
+                            <input asp-for="Task.Title" type="hidden" />
+                        </div>
+                        <span asp-validation-for="Task.Title" class="text-danger"></span>
+
+                        <!--Description-->
+                        <div class="mt-4 material-group">
+                            <textarea asp-for="Task.Description" value="" class="material-input txta" id="description" rows="1" onkeyup="charcountupdate(this.value)" maxlength="1000" spellcheck="true"></textarea>
+                            <span class="material-bar"></span>
+                            <label class="material-label">Description</label>
+                            <span id="charcount"></span>
+                        </div>
+                        <span asp-validation-for="Task.Description" class="text-danger"></span>
+
+                        <!--Assign-->
+                        <div class="mt-4 material-group">
+                            <select class="material-input align-selector" asp-for="AssignUserId" asp-items="@Model.ApplicationUserList" onchange="align_label()">
+                                <option value="null">---</option>
+                            </select>
+                            <span class="material-bar"></span>
+                            <label class="material-label">Align somebody</label>
+                        </div>
+
+                        <!--Status-->
+                        <div class="mt-4 custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="activeCheck" asp-for="Active">
+                            <label class="custom-control-label" for="activeCheck"> Active </label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="importantCheck" asp-for="Important">
+                            <label class="custom-control-label" for="importantCheck"> Important </label>
+                        </div>
+
+                        <!--Image-->
+                        <input id="emptyImage" asp-for="EmptyImage" type="hidden">
+
+                        @if (Model.File != null && Model.File.Image != null)
+                        {
+
+                            <input id="fileTaskId" asp-for="File.TaskId" type="hidden">
+                            <input id="fileFileId" asp-for="File.FileId" type="hidden">
+                            <input id="fileImage" asp-for="File.Image" type="hidden">
+                            <input id="fileFilename" asp-for="File.Filename" type="hidden">
+                            <input id="fileContentType" asp-for="File.ContentType" type="hidden">
+
+                            <div class="mt-4 file-upload">
+
+                                <div class="image-upload-wrap" style="display: none;">
+                                    <input id="imageUpload" class="file-upload-input" asp-for="UploadImage" type='file' onchange="readURL(this);" ondragover="$('.image-upload-wrap').addClass('image-dropping');" ondragleave="$('.image-upload-wrap').removeClass('image-dropping');" accept="image/*" />
+                                    <div class="drag-text">
+                                        <h3>Drag and drop a file <br /> or <br /> click</h3>
+                                    </div>
+                                </div>
+                                <div class="file-upload-content" style="display: block;">
+                                    <img class="file-upload-image" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.File.Image)" alt="your image" />
+                                    <div class="image-title-wrap">
+                                        <button type="button" onclick="removeUpload()" class="btn btn-danger remove-image-btn">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mt-4 file-upload">
+
+                                <div class="image-upload-wrap">
+                                    <input id="imageUpload" class="file-upload-input" asp-for="UploadImage" type='file' onchange="readURL(this);" ondragover="$('.image-upload-wrap').addClass('image-dropping');" ondragleave="$('.image-upload-wrap').removeClass('image-dropping');" accept="image/*" />
+                                    <div class="drag-text">
+                                        <h3>Drag and drop a file <br /> or <br /> click</h3>
+                                    </div>
+                                </div>
+                                <div class="file-upload-content">
+                                    <img class="file-upload-image" src="#" alt="your image" />
+                                    <div class="image-title-wrap">
+                                        <button type="button" onclick="removeUpload()" class="btn btn-danger remove-image-btn">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!--Buttons-->
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-modal-yes" id="saveButton"><i class="fa fa-check"></i> Save</button>
+                            <button type="button" class="btn btn-modal-no" data-dismiss="modal" aria-hidden="true"><i class="fa fa-ban"></i> Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript" src="~/js/CreateEdit.js"></script>
+
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

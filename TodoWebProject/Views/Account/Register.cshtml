@@ -6,88 +6,103 @@
 
 
 
-<form method="post" enctype="multipart/form-data" role="form" class="text-center needs-validation" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;" id="contact_form">
-    <p class="h4 mb-4">Sign up</p>
+    <form method="post" enctype="multipart/form-data" role="form" class="text-center needs-validation" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;" id="contact_form">
+        <p class="h4 mb-4">Sign up</p>
 
-    <img id="image_upload_preview" class="image--cover" src="~/placeholder/Placeholder_uploade.jpg" alt="Preview" />
-
-    <label class="btn btn-light">
-        <input asp-for="ProfilePicture" type="file" id="Image" name="profilePicture" accept="image/*" onchange="readURL(this);" hidden>
-        Select Image
-    </label>
+        <label style="cursor:pointer">
+            <img id="image_upload_preview" class="image--cover" src="~/placeholder/placeholder_upload.png" alt="Preview" />
+            <input asp-for="ProfilePicture" type="file" id="Image" name="profilePicture" accept="image/*" onchange="readURL(this);" hidden>
+        </label>
 
 
-    <div class="form-row mt-2">
+        <div class="form-row mt-2">
 
-        <!--First name-->
+            <!--First name-->
 
-        <div class="input-group col">
-            <div class=" input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-user"></i></span>
+            <div class="col material-group">
+                <input asp-for="FirstName" id="FirstName" class="material-input" autocomplete="off">
+                <div class="material-bar"></div>
+                <label class="material-label">First Name</label>
             </div>
-            <input asp-for="FirstName" id="FirstName" class="form-control" placeholder="First name" autocomplete="off">
             <span asp-validation-for="FirstName" class="text-danger"></span>
-        </div>
 
 
-        <!--Last name-->
 
-        <div class="input-group col">
-            <div class=" input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-user"></i></span>
+            <!--Last name-->
+
+            <div class="col material-group">
+                <input asp-for="LastName" id="LastName" class="material-input" autocomplete="off">
+                <div class="material-bar"></div>
+                <label class="material-label">Last Name</label>
             </div>
-            <input asp-for="LastName" id="LastName" class="form-control" placeholder="Last Name" autocomplete="off">
             <span asp-validation-for="LastName" class="text-danger"></span>
+
+
         </div>
 
-    </div>
 
+        <!--Email-->
 
-    <!--Email-->
-
-    <div class="input-group mt-4">
-        <div class=" input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+        <div class="mt-4 material-group">
+            <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="new-email" />
+            <div class="material-bar"></div>
+            <label class="material-label">E-Mail</label>
         </div>
-        <input asp-for="Email" type="email" id="Email" class="form-control" placeholder="E-mail" autocomplete="new-email" />
-    </div>
-    <span asp-validation-for="Email" class="text-danger"></span>
+        <span asp-validation-for="Email" class="text-danger"></span>
 
-    <!--Password-->
 
-    <div class="input-group mt-4" >
-        <div class=" input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-key"></i></span>
+        <!--Password-->
+
+        <div class="mt-4 material-group">
+            <input asp-for="Password" type="password" id="myPassword" class="material-input" autocomplete="new-password" required >
+            <div class="material-bar" style="margin-bottom:5px"></div>
+            <label class="material-label">Password</label>
         </div>
-        <input asp-for="Password" type="password" id="myPassword" class="form-control" placeholder="Password" autocomplete="new-password">
-        <div class="input-group-append">
-            <span class="input-group-text">
-                <a href="" id="show_hide_password" style="color:#495057"><i class="fa fa-eye-slash" id="eye"></i></a>
-            </span>
+        <span asp-validation-for="Password" class="text-danger"></span>
+
+        <!--Confirm Password-->
+
+        <div class="mt-4">
+
         </div>
-    </div>
-    <span asp-validation-for="Password" class="text-danger"></span>
 
-    <!--Confirm Password-->
 
-    <div class="input-group mt-4">
-        <div class=" input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-key"></i></span>
+        <div class="mt-4 material-group">
+            <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="material-input" required autocomplete="new-user">
+            <div class="material-bar"></div>
+            <label class="material-label">Confirm password</label>
         </div>
-        <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="form-control" placeholder="Confirm Password" required autocomplete="new-user">
-    </div>
-    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
 
-    <!--Admin ?-->
-    <div class="custom-control custom-switch mb-3 mt-4">
-        <input asp-for="Role" type="checkbox" class="custom-control-input" id="Admin">
-        <label class="custom-control-label" for="Admin">Admin</label>
-    </div>
+        <!--Admin ?-->
+        <div class="custom-control custom-switch mb-3 mt-4">
+            <input asp-for="Role" type="checkbox" class="custom-control-input" id="Admin">
+            <label class="custom-control-label" for="Admin">Admin</label>
+        </div>
 
-    <!--Button-->
+        <!--Button-->
 
-    <button class="btn btn-info my-4 btn-block" type="submit">Sign up</button>
+        <button class="btn btn-primary mt-4 btn-block" type="submit">Sign up</button>
 
+    </form>
+
+<h6 style="margin-top:0.5rem; text-align:center; vertical-align: central">or</h6>
+
+<!--External Login-->
+
+<form method="post" asp-action="ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" class="text-center" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;">
+
+    <button type="submit" class="btn social-button mb-2 btn-block" id="google-connect" name="provider" value="Google">
+        <span>Login with Google</span>
+    </button>
+
+    <button type="submit" class="btn social-button mb-2 btn-block" id="facebook-connect" name="provider" value="Facebook">
+        <span>Login with Facebook</span>
+    </button>
+
+    <button type="submit" class="btn social-button mb-2 btn-block" id="twitter-connect" name="provider" value="Twitter">
+        <span>Login with Twitter</span>
+    </button>
 </form>
 
 @section scripts
@@ -115,22 +130,6 @@
                 minimumLength: 6,
                 fieldPartialMatch: true,
                 animate: true,
-            });
-
-        });
-
-        $(document).ready(function () {
-            $("#show_hide_password").on('click', function (event) {
-                event.preventDefault();
-                if ($('#myPassword').attr("type") == "text") {
-                    $('#myPassword').attr('type', 'password');
-                    $('#eye').addClass("fa-eye-slash");
-                    $('#eye').removeClass("fa-eye");
-                } else if ($('#myPassword').attr("type") == "password") {
-                    $('#myPassword').attr('type', 'text');
-                    $('#eye').removeClass("fa-eye-slash");
-                    $('#eye').addClass("fa-eye");
-                }
             });
         });
     </script>

@@ -1,0 +1,90 @@
+﻿@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using TodoWebProjekt.Authorization
+@model TodoWebProjekt.ViewModel.FileTaskViewModel
+@inject UserManager<ApplicationUser> UserManager
+
+<div id="detailsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color:#757575; opacity:1">&times;</button>
+                <span asp-validation-for="UploadImage" class="text-danger"></span>
+            </div>
+            <div class="modal-body">
+                <div class="jumbotron" style="background: white">
+                    <div class="container">
+                        <!-- Title -->
+                        <h1>
+                            @Html.DisplayFor(model => model.Task.Title)
+                        </h1>
+
+                        <!-- Author with Picture -->
+                        <div class="d-inline-block">
+                            @if (Model.AuthorProfilePicture != null)
+                            {
+                                <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="@UserManager.FindByIdAsync(Model.Task.UserId).Result?.FullName" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.AuthorProfilePicture.Image)" />
+                            }
+                            else
+                            {
+                                <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="@UserManager.FindByIdAsync(Model.Task.UserId).Result?.FullName" src="~/placeholder/placeholder_avatar.jpg" />
+                            }
+                        </div>
+                        <div class="d-inline-block align-middle">
+                            <p style="font-weight: 700;  padding-left:5px; margin-bottom:auto">
+                                @Html.DisplayFor(model => UserManager.FindByIdAsync(Model.Task.UserId).Result.FullName)
+                            </p>
+                        </div>
+
+                        <!-- Labels -->
+                        @if (Model.Task.ActiveStatus == "Doing")
+                        {
+                            <span class="badge badge-primary mx-1 d-inline-block" style="font-size:1.5rem; vertical-align:middle; float:right"> Doing </span>
+                        }
+                        else if (Model.Task.ActiveStatus == "Done")
+                        {
+                            <span class="badge badge-success mx-1 d-inline-block" style="font-size:1.5rem; vertical-align:middle; float:right"> Done </span>
+                        }
+                        @if (Model.Task.ImportanceStatus == "Important")
+                        {
+                            <span class="badge badge-danger mx-1 d-inline-block" style="font-size:1.5rem; vertical-align:middle; float:right"> Important </span>
+                        }
+
+                        <!-- Description -->
+                        <hr class="my-4">
+                        <pre class="mx-5">@Html.DisplayFor(model => model.Task.Description)</pre>
+
+                        <!-- Image -->
+                        <div>
+                            @if (Model.File != null)
+                            {
+                                <img style="max-height: 600px; object-fit: contain;" class="card-img-top" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.File.Image)" alt="Task Image" />
+                            }
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="form-group mt-3" style="width:100%; margin-bottom:0">
+                            @{
+                                var dis = Model.Task.UserId != UserManager.GetUserId(User) && !User.IsInRole(Constants.AdminRole) ? "disabled" : "";
+                            }
+
+                            <button class="btn btn-outline-primary" data-dismiss="modal" aria-hidden="true"><i class="fa fa-chevron-left"></i> Back</button>
+
+                            <button type="button" class="btn btn-outline-primary @dis" data-dismiss="modal" onclick="openEditModal(@Model.Task.TaskId)"><i class="fa fa-edit"></i> Edit</button>
+
+                            @if ((await AuthorizationService.AuthorizeAsync(User, Model.Task, TaskOperations.Delete)).Succeeded || User.IsInRole(Constants.AdminRole))
+                            {
+                                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" onclick="Delete(@Model.Task.TaskId)"><i class="fa fa-trash-alt"></i> Delete</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-danger btn-sm" @dis><i class="fa fa-trash-alt"></i> Delete</button>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

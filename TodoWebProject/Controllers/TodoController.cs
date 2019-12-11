@@ -5,9 +5,11 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -31,7 +33,6 @@ namespace TodoWebProjekt.Controllers
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly ITodoRepository _todoRepository;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TodoController"/> class.
         /// </summary>
@@ -63,13 +64,24 @@ namespace TodoWebProjekt.Controllers
         /// <param name="pageSize"> The amount of items on a page. </param>
         /// <returns> The todo list partial view. </returns>
         [AllowAnonymous]
-        public IActionResult LoadTodoList(string sortOrder, string searchString, string currentFilter, int? pageNumber, int pageSize = 5)
+        public IActionResult LoadTodoList(string sortOrder, string searchString, string currentFilter, int? pageNumber, int pageSize)
         {
-            var createViewModel = new IndexViewModel();
+            var model = new IndexViewModel();
 
+            if (pageSize == 0)
+            {
+                if (HttpContext.Session.GetInt32("CurrentPageSize") != null)
+                {
+                    pageSize = (int)HttpContext.Session.GetInt32("CurrentPageSize");
+                }
+                else
+                {
+                    pageSize = 5;
+                }
+            }
 
             ViewData["CurrentSort"] = sortOrder;
-            ViewData["currentPageSize"] = pageSize;
+            HttpContext.Session.SetInt32("CurrentPageSize", pageSize);
             ViewData["TitleSortParam"] = string.IsNullOrEmpty(sortOrder) ? "Title_Desc" : "Title";
             ViewData["AuthorSortParam"] = string.IsNullOrEmpty(sortOrder) ? "Author_Desc" : "Author";
             ViewData["AssignSortParam"] = string.IsNullOrEmpty(sortOrder) ? "Assign_Desc" : "Assign";
@@ -83,7 +95,21 @@ namespace TodoWebProjekt.Controllers
 
             var isAdmin = User.IsInRole(Constants.AdminRole);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tasks = _todoRepository.GetAll(searchString, isAdmin, userId);
+            IQueryable<Task> tasks = _todoRepository.GetAll(searchString, isAdmin, userId);
+
+            var totalAmount = tasks.Count();
+            var doing = tasks.Where(a => a.ActiveStatus == "Doing");
+            var done = tasks.Where(a => a.ActiveStatus == "Done");
+
+            double importentDoingPercent = doing.Where(a => a.ImportanceStatus == "Important").Count();
+            double notImportentDoingPercent = doing.Where(a => a.ImportanceStatus == string.Empty).Count();
+            double importentDonePercent = done.Where(a => a.ImportanceStatus == "Important").Count();
+            double notImportentDonePercent = done.Where(a => a.ImportanceStatus == string.Empty).Count();
+
+            model.ImportentDoingPercent = ((importentDoingPercent / totalAmount) * 100).ToString(CultureInfo.CreateSpecificCulture("en-GB")) + "%";
+            model.NotImportentDoingPercent = ((notImportentDoingPercent / totalAmount) * 100).ToString(CultureInfo.CreateSpecificCulture("en-GB")) + "%";
+            model.ImportentDonePercent = ((importentDonePercent / totalAmount) * 100).ToString(CultureInfo.CreateSpecificCulture("en-GB")) + "%";
+            model.NotImportentDonePercent = ((notImportentDonePercent / totalAmount) * 100).ToString(CultureInfo.CreateSpecificCulture("en-GB")) + "%";
 
             switch (sortOrder)
             {
@@ -160,18 +186,17 @@ namespace TodoWebProjekt.Controllers
 
             var taskLength = tasks.Count();
 
-            if (pageSize == 0)
+            if (pageSize == -1)
             {
-                ViewData["currentPageSize"] = taskLength;
+                HttpContext.Session.SetInt32("CurrentPageSize", taskLength);
                 pageSize = taskLength;
             }
 
-            createViewModel.Tasks = PaginatedListCollection<Task>.Create(tasks.AsNoTracking(), pageNumber ?? 1, pageSize);
-            createViewModel.Length = taskLength;
+            model.Tasks = PaginatedListCollection<Task>.Create(tasks.AsNoTracking(), pageNumber ?? 1, pageSize);
+            model.Length = taskLength;
 
-            return PartialView("TodoList", createViewModel);
+            return PartialView("_TodoList", model);
         }
-
 
         /// <summary>
         /// Show the Details view.
@@ -187,7 +212,7 @@ namespace TodoWebProjekt.Controllers
 
             var details = await _todoRepository.GetFileTaskViewModel(id).ConfigureAwait(true);
             details.AuthorProfilePicture = await _todoRepository.GetProfilePicture(details.Task.UserId);
-            return details == null ? NotFound() : (IActionResult)View(details);
+            return details == null ? NotFound() : (IActionResult)PartialView("_DetailsModal", details);
         }
 
         /// <summary>
@@ -202,59 +227,75 @@ namespace TodoWebProjekt.Controllers
                 ApplicationUserList = _todoRepository.GetPossibleAssignUsers(User.FindFirstValue(ClaimTypes.NameIdentifier)),
             };
 
-            return View(createViewModel);
+            return PartialView("_CreateModal", createViewModel);
         }
 
         /// <summary>
         /// Create a new Todod entry in the Database.
         /// </summary>
-        /// <param name="fileTaskViewModel"> The view mode where the data-table and the image-table come to gether. </param>
+        /// <param name="model"> The view mode where the data-table and the image-table come to gether. </param>
         /// <param name="image"> The image input filehandler. </param>
         /// <returns> If all gone right you will be redirected to the Index view. </return>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(FileTaskViewModel fileTaskViewModel, IFormFile image)
+        public async Task<IActionResult> Create(FileTaskViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(fileTaskViewModel);
+                return Json(new
+                {
+                    status = "failure",
+                    formErrors = ModelState.Select(kvp => new
+                    {
+                        key = kvp.Key,
+                        errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                    }),
+                });
             }
 
-            if (image != null)
+            if (model.UploadImage != null)
             {
-                if (image.ContentType.IndexOf("image", StringComparison.OrdinalIgnoreCase) < 0)
+                if (model.UploadImage.ContentType.IndexOf("image", StringComparison.OrdinalIgnoreCase) < 0)
                 {
-                    ModelState.AddModelError(string.Empty, "This file is not an image");
+                    ModelState.AddModelError("UploadeImage", "This file is not an image");
 
-                    return View(fileTaskViewModel);
+                    return Json(new
+                    {
+                        status = "failure",
+                        formErrors = ModelState.Select(kvp => new
+                        {
+                            key = kvp.Key,
+                            errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                        }),
+                    });
                 }
 
-                if (fileTaskViewModel != null)
+                if (model != null)
                 {
-                    fileTaskViewModel.File = new File
+                    model.File = new File
                     {
-                        Task = fileTaskViewModel.Task,
+                        Task = model.Task,
                     };
 
                     await using var ms = new MemoryStream();
-                    image.CopyTo(ms);
-                    fileTaskViewModel.File.Image = ms.ToArray();
-                    fileTaskViewModel.File.ContentType = image.ContentType;
-                    fileTaskViewModel.File.Filename = Path.GetRandomFileName();
+                    model.UploadImage.CopyTo(ms);
+                    model.File.Image = ms.ToArray();
+                    model.File.ContentType = model.UploadImage.ContentType;
+                    model.File.Filename = Path.GetRandomFileName();
                 }
             }
 
-            if (fileTaskViewModel != null)
+            if (model != null)
             {
-                fileTaskViewModel.Task.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                fileTaskViewModel.Task.AssignUserId = fileTaskViewModel.AssignUserId;
-                fileTaskViewModel.Task.ActiveStatus = fileTaskViewModel.Active ? "Doing" : "Done";
-                fileTaskViewModel.Task.ImportanceStatus = fileTaskViewModel.Important ? "Important" : string.Empty;
+                model.Task.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                model.Task.AssignUserId = model.AssignUserId;
+                model.Task.ActiveStatus = model.Active ? "Doing" : "Done";
+                model.Task.ImportanceStatus = model.Important ? "Important" : string.Empty;
             }
 
-            var taskId = await _todoRepository.AddFileTask(fileTaskViewModel).ConfigureAwait(true);
+            var taskId = await _todoRepository.AddFileTask(model).ConfigureAwait(true);
 
-            return taskId > 0 ? RedirectToAction("Index") : (IActionResult)NotFound();
+            return taskId > 0 ? Json(new { status = "success" }) : (IActionResult)NotFound();
         }
 
         /// <summary>
@@ -270,6 +311,11 @@ namespace TodoWebProjekt.Controllers
                 return BadRequest();
             }
 
+            if (fileTaskViewModel.File != null && fileTaskViewModel.File.Image != null)
+            {
+                fileTaskViewModel.EmptyImage = false;
+            }
+
             var isAuthorized =
                 await _authorizationService.AuthorizeAsync(User, fileTaskViewModel.Task, TaskOperations.Update).ConfigureAwait(true);
             return !isAuthorized.Succeeded && !User.IsInRole(Constants.AdminRole)
@@ -278,34 +324,65 @@ namespace TodoWebProjekt.Controllers
                     firstLine = "Authentication",
                     secondLine = "problem",
                 })
-                : (IActionResult)View(fileTaskViewModel);
+                : (IActionResult)PartialView("_EditModal", fileTaskViewModel);
         }
 
         /// <summary>
         /// The Post Edit methode which is called if you submit the changes.
         /// </summary>
-        /// <param name="fileTaskViewModel"> The View Model where diffrent models and parameters are listed. </param>
-        /// <param name="image"> The Image input from the edit page. </param>
+        /// <param name="model"> The View Model where diffrent models and parameters are listed. </param>
+        /// <param name="uploadImage"> The Image input from the edit page. </param>
         /// <returns> If all gone right you will be redirected back to the index view. </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(FileTaskViewModel fileTaskViewModel, IFormFile image)
+        public async Task<IActionResult> Edit(FileTaskViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(fileTaskViewModel);
+                return Json(new
+                {
+                    status = "failure",
+                    formErrors = ModelState.Select(kvp => new
+                    {
+                        key = kvp.Key,
+                        errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                    }),
+                });
             }
 
-            if (fileTaskViewModel == null)
+            if (model == null)
             {
                 return RedirectToAction("Index");
             }
 
-            if (image != null)
+            if (model.EmptyImage)
             {
-                if (fileTaskViewModel != null)
+                var file = model.File;
+                if (file != null)
                 {
-                    var file = fileTaskViewModel.File;
+                    var del = _todoRepository.DeleteFile(file);
+                    if (!del)
+                    {
+                        ModelState.AddModelError("UploadeImage", "Not able to delete the Image");
+
+                        return Json(new
+                        {
+                            status = "failure",
+                            formErrors = ModelState.Select(kvp => new
+                            {
+                                key = kvp.Key,
+                                errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                            }),
+                        });
+                    }
+                }
+            }
+
+            if (model.UploadImage != null)
+            {
+                if (model != null)
+                {
+                    var file = model.File;
                     if (file != null)
                     {
                         var del = _todoRepository.DeleteFile(file);
@@ -313,51 +390,68 @@ namespace TodoWebProjekt.Controllers
                         {
                             await using (var ms = new MemoryStream())
                             {
-                                image.CopyTo(ms);
+                                model.UploadImage.CopyTo(ms);
                                 file.Image = ms.ToArray();
-                                file.ContentType = image.ContentType;
+                                file.ContentType = model.UploadImage.ContentType;
                                 file.Filename = Path.GetRandomFileName();
                             }
 
-                            file.TaskId = fileTaskViewModel.Task.TaskId;
+                            file.TaskId = model.Task.TaskId;
                         }
                     }
                     else
                     {
                         file = new File
                         {
-                            Task = fileTaskViewModel.Task,
+                            Task = model.Task,
                         };
 
                         await using var ms = new MemoryStream();
-                        image.CopyTo(ms);
+                        model.UploadImage.CopyTo(ms);
                         file.Image = ms.ToArray();
-                        file.ContentType = image.ContentType;
+                        file.ContentType = model.UploadImage.ContentType;
                         file.Filename = Path.GetRandomFileName();
-                        file.TaskId = fileTaskViewModel.Task.TaskId;
+                        file.TaskId = model.Task.TaskId;
                     }
 
                     var entityState = _todoRepository.AddFile(file);
                     if (entityState == EntityState.Detached)
                     {
-                        ModelState.AddModelError(string.Empty, "File Uploade Impossible");
-                        return View(fileTaskViewModel);
+                        ModelState.AddModelError("UploadeImage", "This file is not an image");
+
+                        return Json(new
+                        {
+                            status = "failure",
+                            formErrors = ModelState.Select(kvp => new
+                            {
+                                key = kvp.Key,
+                                errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                            }),
+                        });
                     }
                 }
             }
 
-            fileTaskViewModel.Task.AssignUserId = fileTaskViewModel.AssignUserId;
-            fileTaskViewModel.Task.ActiveStatus = fileTaskViewModel.Active ? "Doing" : "Done";
-            fileTaskViewModel.Task.ImportanceStatus = fileTaskViewModel.Important ? "Important" : string.Empty;
+            model.Task.AssignUserId = model.AssignUserId;
+            model.Task.ActiveStatus = model.Active ? "Doing" : "Done";
+            model.Task.ImportanceStatus = model.Important ? "Important" : string.Empty;
 
-            var result = await _todoRepository.Update(fileTaskViewModel).ConfigureAwait(true);
+            var result = await _todoRepository.Update(model).ConfigureAwait(true);
             if (result == 0)
             {
-                ModelState.AddModelError(string.Empty, "Failed to update the task!");
-                return View(fileTaskViewModel);
+                ModelState.AddModelError("Task", "Failed to update the task!");
+                return Json(new
+                {
+                    status = "failure",
+                    formErrors = ModelState.Select(kvp => new
+                    {
+                        key = kvp.Key,
+                        errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                    }),
+                });
             }
 
-            return RedirectToAction("Index");
+            return Json(new { status = "success" });
         }
 
         /// <summary>

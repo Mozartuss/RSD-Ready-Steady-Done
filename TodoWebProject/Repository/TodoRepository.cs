@@ -166,6 +166,7 @@ namespace TodoWebProjekt.Repository
             }
 
             var task = _context.Task.Find(id);
+            if(task == null) return null;
             var file = _context.File.FirstOrDefault(t => t.TaskId == id);
             var users = _context.ApplicationUser.OrderBy(c => c.UserName)
                 .Select(x => new { x.Id, Value = x.FullName })

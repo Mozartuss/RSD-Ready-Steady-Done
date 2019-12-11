@@ -4,41 +4,39 @@
     ViewData["Title"] = "Register";
 }
 
-<form method="post" class="text-center" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;">
-    <div asp-validation-summary="All" class="text-danger"></div>
+    <form method="post" class="text-center" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;">
+        <div asp-validation-summary="All" class="text-danger"></div>
 
-    <p class="h4 my-4">Sign in</p>
+        <p class="h4 my-4">Sign in</p>
 
-    <div class="input-group mb-4">
-        <div class=" input-group-prepend">
-            <span class="input-group-text" id="username-addon"><i class="fa fa-user"></i></span>
+
+        <!--Email-->
+
+        <div class="mt-4 material-group">
+            <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="new-email" required />
+            <div class="material-bar"></div>
+            <label class="material-label">E-Mail</label>
         </div>
-
-        <input asp-for="Email" type="email" id="Email" class="form-control" placeholder="E-mail" aria-label="Username" aria-describedby="username-addon" autocomplete="off">
         <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
 
-    <div class="input-group mb-3">
-        <div class=" input-group-prepend">
-            <span class="input-group-text" id="password-addon"><i class="fa fa-key"></i></span>
-        </div>
+        <!--Password-->
 
-        <input asp-for="Password" type="password" id="Password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" autocomplete="new-password">
-        <div class="input-group-append">
-            <span class="input-group-text">
-                <a href="" id="show_hide_password" style="color:#495057"><i class="fa fa-eye-slash" id="eye"></i></a>
-            </span>
+        <div class="my-4 material-group">
+            <input asp-for="Password" type="password" id="Password" class="material-input" autocomplete="new-password" required>
+            <div class="material-bar"></div>
+            <label class="material-label">Password</label>
         </div>
         <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
 
-    <div class="custom-control custom-switch mb-3">
-        <input asp-for="RememberMe" type="checkbox" class="custom-control-input" id="rememberMe" checked>
-        <label class="custom-control-label" for="rememberMe">Remember me</label>
-    </div>
+        <!--Admin?-->
 
-    <button class="btn btn-info mb-2 btn-block" type="submit">Login</button>
-</form>
+        <div class="custom-control custom-switch mb-3">
+            <input asp-for="RememberMe" type="checkbox" class="custom-control-input" id="rememberMe" checked>
+            <label class="custom-control-label" for="rememberMe">Remember me</label>
+        </div>
+
+        <button class="btn btn-info mb-2 btn-block" type="submit">Login</button>
+    </form>
 
 <h6 style="margin-top:0.5rem; text-align:center; vertical-align: central">or</h6>
 
@@ -133,22 +131,5 @@
 
 
     }
-
-    <script>
-        $(document).ready(function () {
-            $("#show_hide_password").on('click', function (event) {
-                event.preventDefault();
-                if ($('#Password').attr("type") == "text") {
-                    $('#Password').attr('type', 'password');
-                    $('#eye').addClass("fa-eye-slash");
-                    $('#eye').removeClass("fa-eye");
-                } else if ($('#Password').attr("type") == "password") {
-                    $('#Password').attr('type', 'text');
-                    $('#eye').removeClass("fa-eye-slash");
-                    $('#eye').addClass("fa-eye");
-                }
-            });
-        });
-    </script>
 }
 

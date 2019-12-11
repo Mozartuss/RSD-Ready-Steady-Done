@@ -59,9 +59,13 @@ namespace TodoWebProjekt.Controllers
         /// Gets the register view.
         /// </summary>
         /// <returns> The register view. </returns>
-        public IActionResult Register()
+        public IActionResult Register(string returnUrl)
         {
-            return View();
+            var model = new RegisterViewModel
+            {
+                ReturnUrl = returnUrl,
+            };
+            return View(model); ;
         }
 
 

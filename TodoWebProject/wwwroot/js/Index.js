@@ -1,4 +1,12 @@
 ﻿
+$("document").ready(function () {
+    loadList();
+});
+
+async function loadList() {
+    $("#partial").load("/Todo/LoadTodoList");
+}
+
 var Delete = function (id) {
     $("#deleteDialog").modal("show");
     $("#confirm").click(function () {
@@ -123,6 +131,17 @@ var highlight = function (string) {
         $(this).html(beforeMatch + "<b style='color:#0062cc' >" + matchText + "</b>" + afterMatch);
     });
 };
+
+function show_progress_bar() {
+        $("#progressBarLabel").slideToggle(100, function(){
+    });
+}
+
+
+
+
+
+
 
 
 

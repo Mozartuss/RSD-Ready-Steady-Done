@@ -21,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TodoWebProjekt.Authorization;
 using TodoWebProjekt.Email;
+using TodoWebProjekt.Helper;
 using TodoWebProjekt.Hubs;
 using TodoWebProjekt.Models;
 using TodoWebProjekt.Repository;
@@ -148,6 +149,7 @@ namespace TodoWebProjekt
                     .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
             });
+
             services.AddScoped<ITodoRepository, TodoRepository>();
 
             services.AddScoped<IAuthorizationHandler, TaskOwnerAuthorizationHandler>();
@@ -159,6 +161,12 @@ namespace TodoWebProjekt
             services.AddTransient<IEmailSender, AuthMessageSender>();
 
             services.AddSignalR();
+
+            services.AddMvc();
+
+            services.AddDistributedMemoryCache();
+
+            services.AddSession();
 
             services.AddHttpContextAccessor();
         }
@@ -181,6 +189,8 @@ namespace TodoWebProjekt
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
+            app.UseSession();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

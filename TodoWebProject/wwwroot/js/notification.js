@@ -27,18 +27,12 @@ connection.on("sendToast",
     });
 
 
-connection.start().catch(err => console.error(err.toString())).then(function() {
+connection.start().catch(err => console.error(err.toString())).then(function () {
     console.log("connected");
 });
 
-document.getElementById("saveButton").addEventListener("click",
-    event => {
-        const userName = document.getElementById("userName").value;
-        const taskName = document.getElementById("taskName").value;
-        connection.invoke("PushNotification", userName, taskName).catch(err => console.error(err.toString()));
-        event.preventDefault();
-
-        var form = $("form");
-        form.submit();
-
-    });
+function sendNotification() {
+    const userName = document.getElementById("userName").value;
+    const taskName = document.getElementById("taskName").value;
+    connection.invoke("PushNotification", userName, taskName).catch(err => console.error(err.toString()));
+}

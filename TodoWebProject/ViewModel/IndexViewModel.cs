@@ -23,5 +23,13 @@ namespace TodoWebProjekt.ViewModel
         /// Gets or sets the length of the task list.
         /// </summary>
         public int Length { get; set; }
+
+        public string NotImportentDoingPercent { get; set; }
+
+        public string NotImportentDonePercent { get; set; }
+
+        public string ImportentDoingPercent { get; set; }
+
+        public string ImportentDonePercent { get; set; }
     }
 }

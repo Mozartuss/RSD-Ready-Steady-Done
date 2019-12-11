@@ -81,7 +81,7 @@ namespace TodoWebProjekt.Test
             controller.ModelState.AddModelError("Title", "Required");
 
             // Act
-            var result = await controller.Create(TodoControllerHelper.GetFileTaskViewModel(), null);
+            var result = await controller.Create(TodoControllerHelper.GetFileTaskViewModel());
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -105,7 +105,7 @@ namespace TodoWebProjekt.Test
             };
 
             // Act
-            var result = await controller.Create(TodoControllerHelper.GetFileTaskViewModel(), null);
+            var result = await controller.Create(TodoControllerHelper.GetFileTaskViewModel());
 
             // Assert
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);

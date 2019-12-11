@@ -1,9 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Authorization
 @using TodoWebProjekt.Authorization
+@using Microsoft.AspNetCore.Http
 @model TodoWebProjekt.ViewModel.IndexViewModel
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IAuthorizationService AuthorizationService
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     var current = (string)ViewData["CurrentSort"];
@@ -19,19 +21,20 @@
     var currentSort = string.IsNullOrEmpty(current) ? "null" : (string)current;
     var currentFilter = string.IsNullOrEmpty(cF) ? "null" : cF;
     var searchText = cF != "Important" | cF != "NotImportant" | cF != "Doing" | cF != "Done" ? cF : "";
+    var pageSize = HttpContextAccessor.HttpContext.Session.GetInt32("CurrentPageSize");
 }
 
 <div class="container">
     <div>
         <div style="float: left">
-            <a asp-controller="Todo" asp-action="Create" class="btn btn-outline-secondary" m-1>Add</a>
+            <button onclick="openCreateModal()" class="btn btn-outline-secondary" m-1>Add</button>
         </div>
         <div style="float: right;">
             <div class="form-inline my-2 my-lg-0">
                 <div class="input-group" style="margin-right: 5px">
                     <div class="btn-group" id="radioBtn">
                         <button class="btn btn-secondary @all"
-                                onclick="Sort('null', @ViewData["currentPageSize"])"
+                                onclick="Sort('null', @pageSize)"
                                 id="all_sort"
                                 type="button"
                                 title="All">
@@ -39,14 +42,14 @@
                         </button>
 
                         <button class="btn btn-danger @important"
-                                onclick="Sort('Important', @ViewData["currentPageSize"])"
+                                onclick="Sort('Important', @pageSize)"
                                 id="important_sort"
                                 type="button"
                                 title="Important">
                             Important
                         </button>
                         <button class="btn btn-light @notImportant"
-                                onclick="Sort('NotImportant', @ViewData["currentPageSize"])"
+                                onclick="Sort('NotImportant', @pageSize)"
                                 id="not_important_sort"
                                 type="button"
                                 title="Not Important">
@@ -54,7 +57,7 @@
                         </button>
 
                         <button class="btn btn-primary @doing"
-                                onclick="Sort('Doing', @ViewData["currentPageSize"])"
+                                onclick="Sort('Doing', @pageSize)"
                                 id="doing_sort"
                                 type="button"
                                 title="Doing">
@@ -62,7 +65,7 @@
                         </button>
 
                         <button class="btn btn-success @done"
-                                onclick="Sort('Done', @ViewData["currentPageSize"])"
+                                onclick="Sort('Done', @pageSize)"
                                 id="done_sort"
                                 type="button"
                                 title="Done">
@@ -76,7 +79,7 @@
                     <input id="searchString" class="form-control search-box" type="text" name="searchString" placeholder="Title Search on current Page..." value="@searchText" onkeyup="Search()" autocomplete="off">
 
                     <div class="input-group-append">
-                        <button id="clear" class="btn btn-secondary zerowidth" onclick="Filter('',@ViewData["CurrentPageSize"],'',0,true)"><span class="fa fa-times-circle"></span></button>
+                        <button id="clear" class="btn btn-secondary zerowidth" onclick="Filter('',@pageSize,'',0,true)"><span class="fa fa-times-circle"></span></button>
                     </div>
                 </div>
 
@@ -84,28 +87,27 @@
             </div>
         </div>
     </div>
-    <br />
-    <br />
 
-    <table id="table" class="table">
+
+    <table id="table" class="table table-borderless">
         <thead>
             <tr>
                 <th style="width:31px; min-width: 31px"></th>
                 <th style="width:451px; min-width: 400px">
-                    <a onclick="Filter('@ViewData["TitleSortParam"]',@ViewData["CurrentPageSize"],'@currentFilter',0)" href=#>
+                    <a onclick="Filter('@ViewData["TitleSortParam"]',@pageSize,'@currentFilter',0)" href=#>
                         Title
                         <i class="@title_arrow"></i>
                     </a>
                 </th>
                 <th>
-                    <a onclick="Filter('@ViewData["AuthorSortParam"]',@ViewData["CurrentPageSize"],'@currentFilter',0)" href=#>
+                    <a onclick="Filter('@ViewData["AuthorSortParam"]',@pageSize,'@currentFilter',0)" href=#>
                         Author
                         <i class="@author_arrow"></i>
                     </a>
                 </th>
                 <th>
 
-                    <a onclick="Filter('@ViewData["AssignSortParam"]',@ViewData["CurrentPageSize"],'@currentFilter',0)" href=#>
+                    <a onclick="Filter('@ViewData["AssignSortParam"]',@pageSize],'@currentFilter',0)" href=#>
 
 
                         Assign
@@ -118,6 +120,41 @@
                 <th style="min-width:120px; width:120px"></th>
             </tr>
         </thead>
+
+        <tr data-toggle="collapse" data-target="#progressBarLabel">
+            <td colspan="6" style="padding:0px">
+                <div class="progress" style="height: 8px; width: 100%">
+                    <div id="DoneNotImportant" class="progress-bar-animated done-progress-bar" style="width: @Model.NotImportentDonePercent;"></div>
+                    <div id="DoneImportant" class="progress-bar-animated done-important-progress-bar" style="width: @Model.ImportentDonePercent;"></div>
+                    <div id="DoingNotImportant" class="progress-bar-animated doing-progress-bar" style="width: @Model.NotImportentDoingPercent;"></div>
+                    <div id="DoingImportant" class="progress-bar-animated doing-important-progress-bar" style="width: @Model.ImportentDoingPercent;"></div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6" style="padding:0px;">
+
+                <ol id="progressBarLabel" class="panel-collapse collapse">
+                    <li class="progress-bar-label">
+                        <span class="color-block" style="background-color:#28a745"></span>
+                        <span> Done </span>
+                    </li>
+                    <li class="progress-bar-label">
+                        <span class="color-block" style="background-color:#a7288a"></span>
+                        <span> Important Done </span>
+                    </li>
+                    <li class="progress-bar-label">
+                        <span class="color-block" style="background-color:#0062cc"></span>
+                        <span> To do </span>
+                    </li>
+                    <li class="progress-bar-label">
+                        <span class="color-block" style="background-color:#cc6a00"></span>
+                        <span> Important to do </span>
+                    </li>
+
+                </ol>
+            </td>
+        </tr>
         <tbody>
 
             @foreach (var item in Model.Tasks)
@@ -184,22 +221,22 @@
                                 var dis = itemUserId != currentUserId && !User.IsInRole(Constants.AdminRole) ? "disabled" : "";
 
                             }
-                            <form asp-controller="Todo">
-                                <div class="input-group">
-                                    <div class="btn-group">
-                                        <a asp-action="Edit" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm @dis" title="Edit"><i class="fa fa-edit"></i> </a>
-                                        <a asp-action="Details" asp-route-id="@item.TaskId" class="btn btn-outline-primary btn-sm"><i class="fa fa-eye"></i> </a>
-                                        @if (dis == "" || User.IsInRole(Constants.AdminRole))
-                                        {
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="Delete(@item.TaskId)" title="Delete"><i class="fa fa-trash-alt"></i> </button>
-                                        }
-                                        else
-                                        {
-                                            <button type="button" class="btn btn-danger btn-sm" @dis><i class="fa fa-trash-alt" title="Delete"></i> </button>
-                                        }
-                                    </div>
+
+                            <div class="input-group">
+                                <div class="btn-group">
+                                    <button onclick="openEditModal(@item.TaskId)" class="btn btn-outline-primary btn-sm @dis" title="Edit"><i class="fa fa-edit"></i> </button>
+                                    <button onclick="openDetailsModal(@item.TaskId)" class="btn btn-outline-primary btn-sm"><i class="fa fa-eye"></i> </button>
+                                    @if (dis == "" || User.IsInRole(Constants.AdminRole))
+                                    {
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="Delete(@item.TaskId)" title="Delete"><i class="fa fa-trash-alt"></i> </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-danger btn-sm" @dis><i class="fa fa-trash-alt" title="Delete"></i> </button>
+                                    }
                                 </div>
-                            </form>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
@@ -215,6 +252,7 @@
         </tbody>
     </table>
 
+    <!-- Pagination -->
     <div>
         <ul class="pagination">
 
@@ -224,7 +262,7 @@
             }
 
             <li class="page-item @prevDisabled">
-                <button onclick="Filter('@currentSort',@ViewData["currentPageSize"],'@currentFilter',@(Model.Tasks.PageIndex - 1))"
+                <button onclick="Filter('@currentSort',@pageSize,'@currentFilter',@(Model.Tasks.PageIndex - 1))"
                         class="page-link"
                         title="Previous Page">
                     &laquo; Previous
@@ -232,7 +270,7 @@
             </li>
 
             <li class="page-item @nextDisabled">
-                <button onclick="Filter('@currentSort',@ViewData["currentPageSize"],'@currentFilter',@(Model.Tasks.PageIndex + 1))"
+                <button onclick="Filter('@currentSort',@pageSize,'@currentFilter',@(Model.Tasks.PageIndex + 1))"
                         class="page-link"
                         title="Next Page">
                     Next &raquo;
@@ -243,15 +281,7 @@
             <li>
                 <div class="btn-group" role="group">
                     <button id="pageSize" class="page-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Amount of pageitems">
-                        @if ((int)ViewData["currentPageSize"] > 10)
-                        {
-                            <span>All</span>
-                        }
-                        else
-                        {
-                            <span>@ViewData["currentPageSize"]</span>
-                        }
-
+                        <span>@pageSize</span>
                     </button>
                     <div class="dropdown-menu" aria-labelledby="pageSize">
                         <button class="dropdown-item"
@@ -261,7 +291,9 @@
                         </button>
                         <button class="dropdown-item" onclick="Filter('@currentSort',5,'@currentFilter',0)" title="5">5</button>
                         <button class="dropdown-item" onclick="Filter('@currentSort',10,'@currentFilter',0)" title="10">10</button>
-                        <button class="dropdown-item" onclick="Filter('@currentSort',0,'@currentFilter',0)" title="All">All</button>
+                        <button class="dropdown-item" onclick="Filter('@currentSort',25,'@currentFilter',0)" title="25">25</button>
+                        <button class="dropdown-item" onclick="Filter('@currentSort',-1,'@currentFilter',0)" title="All">All</button>
+
                     </div>
                 </div>
 

@@ -69,5 +69,10 @@ namespace TodoWebProjekt.ViewModel
         /// Gets or sets the users profile picture.
         /// </summary>
         public ProfilePicture ProfilePicture { get; set; }
+
+        /// <summary>
+        /// Gets or sets an url to go back afte login with any provider.
+        /// </summary>
+        public string ReturnUrl { get; set; }
     }
 }

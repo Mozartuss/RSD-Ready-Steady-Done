@@ -65,7 +65,7 @@ namespace TodoWebProjekt.Controllers
             {
                 ReturnUrl = returnUrl,
             };
-            return View(model); ;
+            return View(model);
         }
 
 
@@ -487,17 +487,18 @@ namespace TodoWebProjekt.Controllers
             var currentUserClaims = await _userManager.GetClaimsAsync(currentUser).ConfigureAwait(true);
             var currentUserRoles = await _userManager.GetRolesAsync(currentUser).ConfigureAwait(true);
             var currentProfilePic = await _context.ProfilePictures.FirstOrDefaultAsync(p => p.UserId == id);
+            var provider = User.FindFirst(ClaimTypes.AuthenticationMethod) != null ? User.FindFirst(ClaimTypes.AuthenticationMethod).Value : null;
 
             if (currentUser != await _userManager.GetUserAsync(User).ConfigureAwait(true))
             {
                 return RedirectToAction("Index", "Todo");
             }
 
-            ProfileViewModel profileViewModel = null;
+            ProfileViewModel model = null;
 
             if (currentProfilePic != null)
             {
-                profileViewModel = new ProfileViewModel
+                model = new ProfileViewModel
                 {
                     Id = currentUser.Id,
                     FirstName = currentUser.FirstName,
@@ -507,12 +508,13 @@ namespace TodoWebProjekt.Controllers
                     Mobile = currentUser.PhoneNumber,
                     Claims = currentUserClaims.Select(c => c.Value).ToList(),
                     Roles = currentUserRoles,
+                    Provider = provider,
                     ProfilePicture = currentProfilePic,
                 };
             }
             else
             {
-                profileViewModel = new ProfileViewModel
+                model = new ProfileViewModel
                 {
                     Id = currentUser.Id,
                     FirstName = currentUser.FirstName,
@@ -521,12 +523,12 @@ namespace TodoWebProjekt.Controllers
                     Email = currentUser.Email,
                     Mobile = currentUser.PhoneNumber,
                     Claims = currentUserClaims.Select(c => c.Value).ToList(),
+                    Provider = provider,
                     Roles = currentUserRoles,
                 };
             }
 
-
-            return View(profileViewModel);
+            return PartialView("_ProfileModal", model);
         }
 
         /// <summary>
@@ -540,7 +542,15 @@ namespace TodoWebProjekt.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View();
+                return Json(new
+                {
+                    status = "failure",
+                    formErrors = ModelState.Select(kvp => new
+                    {
+                        key = kvp.Key,
+                        errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                    }),
+                });
             }
 
             if (profileViewModel == null)
@@ -572,12 +582,18 @@ namespace TodoWebProjekt.Controllers
 
                 if (!passResult.Succeeded)
                 {
-                    ModelState.AddModelError(string.Empty, "Password change failed");
-                    return View(profileViewModel);
+                    ModelState.AddModelError("evry", "Password change failed");
+                    return Json(new
+                    {
+                        status = "failure",
+                        formErrors = ModelState.Select(kvp => new
+                        {
+                            key = kvp.Key,
+                            errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                        }),
+                    });
                 }
             }
-
-
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -604,12 +620,20 @@ namespace TodoWebProjekt.Controllers
                     TempData["IsEmailSent"] = true;
                 }
 
-                return RedirectToAction("Index", "Todo");
+                return Json(new { status = "success" });
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Update failed");
-                return View(profileViewModel);
+                ModelState.AddModelError("evry", "Update failed");
+                return Json(new
+                {
+                    status = "failure",
+                    formErrors = ModelState.Select(kvp => new
+                    {
+                        key = kvp.Key,
+                        errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                    }),
+                });
             }
         }
 

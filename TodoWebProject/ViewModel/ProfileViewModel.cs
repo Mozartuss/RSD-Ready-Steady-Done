@@ -99,5 +99,10 @@ namespace TodoWebProjekt.ViewModel
         /// Gets or sets the users profile picture.
         /// </summary>
         public ProfilePicture ProfilePicture { get; set; }
+
+        /// <summary>
+        /// Gets or sets the login provider.
+        /// </summary>
+        public string Provider { get; set; }
     }
 }

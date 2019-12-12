@@ -1,0 +1,108 @@
+﻿@using TodoWebProjekt.Authorization
+@using System.Security.Claims
+@model TodoWebProjekt.ViewModel.ProfileViewModel
+
+<div id="profileModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header" style="display:block">
+                <h4 style="font-weight: 900; color: #0062cc;">Edit profile </h4>
+                @if (User.IsInRole(Constants.AdminRole))
+                {
+                    <h5 style="color: red">Administrator</h5>
+                }
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color:#757575; opacity:1">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0">
+                <form method="post" enctype="multipart/form-data" role="form" class="text-center needs-validation" id="contact_form" style="padding: 0;">
+                    @if (Model.ProfilePicture != null && Model.ProfilePicture.Image != null)
+                    {
+                        <label>
+                            <img id="image_upload_preview" class="image--cover" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.ProfilePicture.Image)" alt="Preview" style="margin:0px 20px 20px 20px;" />
+                        </label>
+                    }
+                    else if (User.FindFirst(c => c.Type == "profilePicture") != null)
+                    {
+                        <label>
+                            <img id="image_upload_preview" class="image--cover" src="@User.FindFirst(c => c.Type == "profilePicture").Value" alt="Preview" style="margin:0px 20px 20px 20px;" />
+                        </label>
+                    }
+                    else
+                    {
+                        <label style="cursor:pointer">
+                            <img id="image_upload_preview" class="image--cover" src="~/placeholder/placeholder_upload.png" alt="Preview" />
+                            <input asp-for="ProfilePicture" type="file" id="Image" name="profilePicture" accept="image/*" onchange="readURL(this);" hidden>
+                        </label>
+                    }
+
+
+                    <div class="form-row mt-2">
+                        <!-- First name -->
+                        <div class="col material-group">
+                            <input asp-for="FirstName" id="FirstName" class="material-input" autocomplete="off" required>
+                            <div class="material-bar"></div>
+                            <label class="material-label">First Name</label>
+                        </div>
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+
+                        <!-- Last name -->
+                        <div class="col material-group">
+                            <input asp-for="LastName" id="LastName" class="material-input" autocomplete="off" required>
+                            <div class="material-bar"></div>
+                            <label class="material-label">Last Name</label>
+                        </div>
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+
+                    <!-- Mobile -->
+                    <div class="mt-4 material-group">
+                        <input asp-for="Mobile" id="Mobile" type="tel" class="material-input" autocomplete="off">
+                        <div class="material-bar"></div>
+                        <label class="material-label">Mobile number</label>
+                    </div>
+                    <span asp-validation-for="Mobile" class="text-danger"></span>
+
+                    <!-- Email -->
+                    <div class="mt-4 material-group">
+                        <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="off" required />
+                        <div class="material-bar"></div>
+                        <label class="material-label">E-Mail</label>
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+
+                    <!-- Old password -->
+                    <div class="mt-4 material-group">
+                        <input asp-for="OldPassword" type="password" id="CurrentPassword" class="material-input" autocomplete="new-user">
+                        <div class="material-bar"></div>
+                        <label class="material-label">Current password</label>
+                    </div>
+                    <span asp-validation-for="OldPassword" class="text-danger"></span>
+
+                    <!-- New password -->
+                    <div class="mt-4 material-group">
+                        <input asp-for="Password" type="password" id="myPassword" class="material-input" autocomplete="new-password" onchange="reqiredOldConfirm();">
+                        <div class="material-bar" style="margin-bottom:5px"></div>
+                        <label class="material-label">Password</label>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+
+                    <!-- Confirm Password -->
+                    <div class="mt-4 material-group">
+                        <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="material-input" autocomplete="new-user">
+                        <div class="material-bar"></div>
+                        <label class="material-label">Confirm password</label>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+
+                    <!-- Buttons -->
+                    <div class="form-group">
+                        <div class="text-left">
+                            <button class="btn btn-modal-yes mt-4 btn-block" type="submit">Save</button>
+                            <button type="button" class="btn btn-modal-no mt-4 btn-block" data-dismiss="modal" aria-hidden="true"> Cancel </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

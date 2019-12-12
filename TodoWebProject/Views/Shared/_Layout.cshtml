@@ -39,15 +39,15 @@
 
                                     @if (@UserManager.GetUserAsync(User).Result?.FullName == " ")
                                     {
-                                        <a asp-controller="Account" asp-action="Profile" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)" class="btn btn-link" style="width: auto">
-                                            @UserManager.GetUserAsync(User).Result?.UserName @Html.Raw(User.IsInRole(Constants.AdminRole) ? "<font color='red'>  Admin </font>" : "")
-                                        </a>
+                                    <button type="button" onclick="openProfileModal('@User.FindFirstValue(ClaimTypes.NameIdentifier)');" class="btn btn-link" style="width: auto">
+                                        @UserManager.GetUserAsync(User).Result?.UserName @Html.Raw(User.IsInRole(Constants.AdminRole) ? "<font color='red'>  Admin </font>" : "")
+                                    </button>
                                     }
                                     else
                                     {
-                                        <a asp-controller="Account" asp-action="Profile" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)" class="btn btn-link" style="width: auto">
-                                            @UserManager.GetUserAsync(User).Result?.FullName @Html.Raw(User.IsInRole(Constants.AdminRole) ? "<font color='red'>  Admin </font>" : "")
-                                        </a>
+                                    <button type="button" onclick="openProfileModal('@User.FindFirstValue(ClaimTypes.NameIdentifier)');" class="btn btn-link" style="width: auto">
+                                        @UserManager.GetUserAsync(User).Result?.FullName @Html.Raw(User.IsInRole(Constants.AdminRole) ? "<font color='red'>  Admin </font>" : "")
+                                    </button>
                                     }
 
                                     @{
@@ -58,15 +58,15 @@
 
                                         if (pic != null && pic.Image != null)
                                         {
-                                            <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="User avatar" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(pic.Image)" />
+                                        <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="User avatar" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(pic.Image)" />
                                         }
                                         else if (external_pic_url != null)
                                         {
-                                            <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="User avatar" src=@external_pic_url.Value />
+                                        <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="User avatar" src=@external_pic_url.Value />
                                         }
                                         else
                                         {
-                                            <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="User avatar" src="~/placeholder/placeholder_avatar.jpg" />
+                                        <img class="image--cover" style="width:38px; height:38px; margin:0px" alt="User avatar" src="~/placeholder/placeholder_avatar.jpg" />
                                         }
                                     }
 

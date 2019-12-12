@@ -6,125 +6,120 @@
     ViewData["Title"] = "Profile";
 }
 
-
-<form method="post" role="form" class="needs-validation">
-
+<form method="post" enctype="multipart/form-data" role="form" class="text-center needs-validation" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;" id="contact_form">
     @{
         var methode = User.FindFirst(ClaimTypes.AuthenticationMethod);
         var provider = methode != null ? methode.Value : null;
 
     }
 
-    <div class="container">
-        <div class="col text-center">
-            <div class="card-img">
-                <div class="card-body ">
+    <div class="mb-4">
+        <p class="h4">Edit profile </p>
+        @if (User.IsInRole(Constants.AdminRole))
+        {
+            <h4 class="mt-2" style="color: red">Administrator</h4>
+        }
+    </div>
 
-                    @if (Model.ProfilePicture != null && Model.ProfilePicture.Image != null)
-                    {
-                        <input asp-for="ProfilePicture.UserId" type="hidden">
-                        <input asp-for="ProfilePicture.ProfilePictureId" type="hidden">
-                        <img class="image--cover" style="width:250px; height:250px" alt="User avatar" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.ProfilePicture.Image)" />
-                    }
-                    else if (User.FindFirst(c => c.Type == "profilePicture") != null)
-                    {
-                        <img class="image--cover" style="width:250px; height:250px;" alt="User avatar" src="@User.FindFirst(c => c.Type == "profilePicture").Value" />
-                    }
-                    else
-                    {
-                        <img class="image--cover" style="width:250px; height:250px" alt="User avatar" src="~/placeholder/placeholder_avatar.jpg" />
-                    }
-                </div>
+    @if (Model.ProfilePicture != null && Model.ProfilePicture.Image != null)
+    {
+        <label>
+            <img id="image_upload_preview" class="image--cover" src="data:Model.image.ContentType;base64,@Convert.ToBase64String(Model.ProfilePicture.Image)" alt="Preview" />
+        </label>
+    }
+    else if (User.FindFirst(c => c.Type == "profilePicture") != null)
+    {
+        <label>
+            <img id="image_upload_preview" class="image--cover" src="@User.FindFirst(c => c.Type == "profilePicture").Value" alt="Preview" />
+        </label>
+    }
+    else
+    {
+        <label style="cursor:pointer">
+            <img id="image_upload_preview" class="image--cover" src="~/placeholder/placeholder_upload.png" alt="Preview" />
+            <input asp-for="ProfilePicture" type="file" id="Image" name="profilePicture" accept="image/*" onchange="readURL(this);" hidden>
+        </label>
+    }
 
-                @if (User.IsInRole(Constants.AdminRole))
-                {
-                    <h4 style="color: red">Administrator</h4>
-                }
 
-            </div>
+    <div class="form-row mt-2">
+        <!-- First name -->
+        <div class="col material-group">
+            <input asp-for="FirstName" id="FirstName" class="material-input" autocomplete="off" required>
+            <div class="material-bar"></div>
+            <label class="material-label">First Name</label>
+        </div>
+        <span asp-validation-for="FirstName" class="text-danger"></span>
 
-            <div class="card ">
-                <div class="card-header">
-                    <h4 class="card-title">Contact info</h4>
-                </div>
-                <div class="card-body">
-                    <div class="form-row" style="margin-bottom: 1rem">
+        <!-- Last name -->
+        <div class="col material-group">
+            <input asp-for="LastName" id="LastName" class="material-input" autocomplete="off" required>
+            <div class="material-bar"></div>
+            <label class="material-label">Last Name</label>
+        </div>
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
 
-                        <!--First name-->
+    <!-- Mobile -->
+    <div class="mt-4 material-group">
+        <input asp-for="Mobile" id="Mobile" type="tel" class="material-input" autocomplete="off">
+        <div class="material-bar"></div>
+        <label class="material-label">Mobile number</label>
+    </div>
+    <span asp-validation-for="Mobile" class="text-danger"></span>
 
-                        <div class="col text-left">
-                            <label style="padding-left: 15px" for="FirstName">First name</label>
-                            <div class="col">
-                                <input asp-for="FirstName" type="text" class="form-control" id="FirstName" autocomplete="off">
-                            </div>
-                        </div>
+    <!-- Email -->
+    <div class="mt-4 material-group">
+        <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="off" required />
+        <div class="material-bar"></div>
+        <label class="material-label">E-Mail</label>
+    </div>
+    <span asp-validation-for="Email" class="text-danger"></span>
 
-                        <!--Last name-->
+    <!-- Old password -->
+    <div class="mt-4 material-group">
+        <input asp-for="OldPassword" type="password" id="CurrentPassword" class="material-input" autocomplete="new-user">
+        <div class="material-bar"></div>
+        <label class="material-label">Current password</label>
+    </div>
+    <span asp-validation-for="OldPassword" class="text-danger"></span>
 
-                        <div class="col text-left">
-                            <label style="padding-left: 15px" for="LastName">Last name</label>
-                            <div class="col">
-                                <input asp-for="LastName" type="text" class="form-control" id="LastName" autocomplete="off">
-                            </div>
-                        </div>
-                    </div>
+    <!-- New password -->
+    <div class="mt-4 material-group">
+        <input asp-for="Password" type="password" id="myPassword" class="material-input" autocomplete="new-password" onchange="reqiredOldConfirm();">
+        <div class="material-bar" style="margin-bottom:5px"></div>
+        <label class="material-label">Password</label>
+    </div>
+    <span asp-validation-for="Password" class="text-danger"></span>
 
-                    <!--Mobile-->
+    <!-- Confirm Password -->
+    <div class="mt-4 material-group">
+        <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="material-input" autocomplete="new-user">
+        <div class="material-bar"></div>
+        <label class="material-label">Confirm password</label>
+    </div>
+    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
 
-                    <div class="form-group  text-left">
-                        <label style="padding-left: 15px" for="MobileNumber">Mobile number</label>
-                        <div class="col">
-                            <input asp-for="Mobile" type="tel" class="form-control" id="MobileNumber" autocomplete="off">
-                        </div>
-                    </div>
-
-                    <!--Email-->
-                    @{var show = provider != null ? "readonly" : "";}
-                    <div class="form-group text-left">
-                        <label style="padding-left: 15px" for="Email">E-mail address</label>
-                        <div class="col">
-                            <input @show asp-for="Email" type="email" class="form-control" id="Email" autocomplete="new email">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @{var hide = provider != null ? "disabled" : "";}
-
-            <div class="card ">
-                <div class="card-header">
-                    <h4 class="card-title">Security</h4>
-                </div>
-                <div class="card-body">
-                    <div class="form-group text-left">
-                        <label style="padding-left: 15px" for="CurrentPassword">Current password</label>
-                        <div class="col">
-                            <input @hide asp-for="OldPassword" type="password" class="form-control" id="CurrentPassword" autocomplete="new-password">
-                            <span asp-validation-for="OldPassword" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="form-group text-left">
-                        <label style="padding-left: 15px" for="NewPassword">New password</label>
-                        <div class="col">
-                            <input @hide asp-for="Password" type="password" class="form-control" id="NewPassword" autocomplete="new-password">
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="form-group text-left">
-                        <label style="padding-left: 15px" for="PasswordConfirmation">Confirm password</label>
-                        <div class="col">
-                            <input @hide asp-for="ConfirmPassword" type="password" class="form-control" id="PasswordConfirmation" autocomplete="off">
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col text-left">
-                            <button type="submit" class="btn btn-primary">Edit</button>
-                            <button type="submit" class="btn btn-outline-danger" asp-controller="Todo" asp-action="Index">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Buttons -->
+    <div class="form-group">
+        <div class="text-left">
+            <button class="btn btn-primary mt-4 btn-block" type="submit">Save</button>
+            <a href="/Todo" class="btn btn-outline-danger mt-4 btn-block"> Cancel </a>
         </div>
     </div>
 </form>
+
+@section scripts
+{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script type="text/javascript" src="~/js/RegisterProfile.js"></script>
+
+    @if (Model.Provider != null)
+    {
+        <script>
+            $("#Email").prop("readonly", true);
+            $("input[type=password]").prop("disabled", true).addClass("disabled");
+        </script>
+    }
+}

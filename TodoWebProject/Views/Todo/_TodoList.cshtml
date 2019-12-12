@@ -1,10 +1,7 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@using TodoWebProjekt.Authorization
+﻿@using TodoWebProjekt.Authorization
 @using Microsoft.AspNetCore.Http
 @model TodoWebProjekt.ViewModel.IndexViewModel
 @inject UserManager<ApplicationUser> UserManager
-@inject SignInManager<ApplicationUser> SignInManager
-@inject IAuthorizationService AuthorizationService
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
@@ -26,11 +23,13 @@
 
 <div class="container">
     <div>
+        <!-- Add button -->
         <div style="float: left">
             <button onclick="openCreateModal()" class="btn btn-outline-secondary" m-1>Add</button>
         </div>
         <div style="float: right;">
             <div class="form-inline my-2 my-lg-0">
+                <!-- Status sort buttons -->
                 <div class="input-group" style="margin-right: 5px">
                     <div class="btn-group" id="radioBtn">
                         <button class="btn btn-secondary @all"
@@ -74,23 +73,20 @@
                     </div>
                 </div>
 
-                <div class="input-group" style="width: 277px;max-width: 277px;min-width: 277px;">
-
+                <!-- Search field -->
+                <div class="input-group" style="width: 277px;">
                     <input id="searchString" class="form-control search-box" type="text" name="searchString" placeholder="Title Search on current Page..." value="@searchText" onkeyup="Search()" autocomplete="off">
-
                     <div class="input-group-append">
                         <button id="clear" class="btn btn-secondary zerowidth" onclick="Filter('',@pageSize,'',0,true)"><span class="fa fa-times-circle"></span></button>
                     </div>
                 </div>
-
-
             </div>
         </div>
     </div>
 
-
     <table id="table" class="table table-borderless">
         <thead>
+            <!-- Sortable header -->
             <tr>
                 <th style="width:31px; min-width: 31px"></th>
                 <th style="width:451px; min-width: 400px">
@@ -108,8 +104,6 @@
                 <th>
 
                     <a onclick="Filter('@ViewData["AssignSortParam"]',@pageSize],'@currentFilter',0)" href=#>
-
-
                         Assign
                         <i class="@assign_arrow"></i>
                     </a>
@@ -119,47 +113,45 @@
                 </th>
                 <th style="min-width:120px; width:120px"></th>
             </tr>
+            <!-- Progressbar -->
+            <tr data-toggle="collapse" data-target="#progressBarLabel">
+                <th colspan="6" style="padding:0px">
+                    <div class="progress" style="height: 8px; width: 100%">
+                        <div id="DoneNotImportant" class="progress-bar-animated done-progress-bar" style="width: @Model.NotImportentDonePercent;"></div>
+                        <div id="DoneImportant" class="progress-bar-animated done-important-progress-bar" style="width: @Model.ImportentDonePercent;"></div>
+                        <div id="DoingNotImportant" class="progress-bar-animated doing-progress-bar" style="width: @Model.NotImportentDoingPercent;"></div>
+                        <div id="DoingImportant" class="progress-bar-animated doing-important-progress-bar" style="width: @Model.ImportentDoingPercent;"></div>
+                    </div>
+                </th>
+            </tr>
+            <tr>
+                <th colspan="6" style="padding:0px;">
+                    <ol id="progressBarLabel" class="panel-collapse collapse">
+                        <li class="progress-bar-label">
+                            <span class="color-block" style="background-color:#28a745"></span>
+                            <span> Done </span>
+                        </li>
+                        <li class="progress-bar-label">
+                            <span class="color-block" style="background-color:#a7288a"></span>
+                            <span> Important Done </span>
+                        </li>
+                        <li class="progress-bar-label">
+                            <span class="color-block" style="background-color:#0062cc"></span>
+                            <span> To do </span>
+                        </li>
+                        <li class="progress-bar-label">
+                            <span class="color-block" style="background-color:#cc6a00"></span>
+                            <span> Important to do </span>
+                        </li>
+                    </ol>
+                </th>
+            </tr>
         </thead>
-
-        <tr data-toggle="collapse" data-target="#progressBarLabel">
-            <td colspan="6" style="padding:0px">
-                <div class="progress" style="height: 8px; width: 100%">
-                    <div id="DoneNotImportant" class="progress-bar-animated done-progress-bar" style="width: @Model.NotImportentDonePercent;"></div>
-                    <div id="DoneImportant" class="progress-bar-animated done-important-progress-bar" style="width: @Model.ImportentDonePercent;"></div>
-                    <div id="DoingNotImportant" class="progress-bar-animated doing-progress-bar" style="width: @Model.NotImportentDoingPercent;"></div>
-                    <div id="DoingImportant" class="progress-bar-animated doing-important-progress-bar" style="width: @Model.ImportentDoingPercent;"></div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="6" style="padding:0px;">
-
-                <ol id="progressBarLabel" class="panel-collapse collapse">
-                    <li class="progress-bar-label">
-                        <span class="color-block" style="background-color:#28a745"></span>
-                        <span> Done </span>
-                    </li>
-                    <li class="progress-bar-label">
-                        <span class="color-block" style="background-color:#a7288a"></span>
-                        <span> Important Done </span>
-                    </li>
-                    <li class="progress-bar-label">
-                        <span class="color-block" style="background-color:#0062cc"></span>
-                        <span> To do </span>
-                    </li>
-                    <li class="progress-bar-label">
-                        <span class="color-block" style="background-color:#cc6a00"></span>
-                        <span> Important to do </span>
-                    </li>
-
-                </ol>
-            </td>
-        </tr>
         <tbody>
-
             @foreach (var item in Model.Tasks)
             {
                 <tr>
+                    <!-- Checkbox -->
                     <td>
                         @if (item.ActiveStatus == "Doing")
                         {
@@ -170,7 +162,13 @@
                             <button type="button" class="btn btn-success btn-sm" onclick="Uncheck(@item.TaskId)" title="Uncheck" id="uncheckButton"><span><i class="fa fa-check"></i></span> </button>
                         }
                     </td>
-                    <td class="cropTitle filter"> @Html.DisplayFor(modelItem => item.Title)</td>
+
+                    <!-- Title -->
+                    <td class="cropTitle filter">
+                    @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+
+                    <!-- Author -->
                     <td class="crop">
                         @if (item.UserId == UserManager.GetUserId(User))
                         {
@@ -181,6 +179,8 @@
                             @Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.UserId).Result.FullName)
                         }
                     </td>
+
+                    <!-- Assign user -->
                     <td class="crop">
                         @if (item.AssignUserId == UserManager.GetUserId(User))
                         {
@@ -196,6 +196,7 @@
                         }
                     </td>
 
+                    <!-- Status label -->
                     <td class="crop">
                         @if (item.ActiveStatus == "Doing")
                         {
@@ -211,6 +212,7 @@
                         }
                     </td>
 
+                    <!-- Table buttons -->
                     <td>
                         <div style="float: right;">
 
@@ -241,17 +243,15 @@
                     </td>
                 </tr>
             }
-
+            <!-- Placeholder if nothing find or empty list -->
             <tr class="notthingShow" style="display:none">
                 <td colspan="6">
                     <h3 class="text-center"><b>Oops </b>There is nothing to Show !</h3>
                     <h4 class="text-center">Please change your filter</h4>
                 </td>
             </tr>
-
         </tbody>
     </table>
-
     <!-- Pagination -->
     <div>
         <ul class="pagination">
@@ -303,7 +303,7 @@
 </div>
 
 @section Scripts{
-    @if (Model.Tasks.Count < 1)
+    @if (Model.Tasks.Count == 0)
     {
         <script>
             $('.notthingShow').show();

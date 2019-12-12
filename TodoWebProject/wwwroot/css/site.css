@@ -696,13 +696,15 @@ tr:not(:first-child) {
 .material-input:focus ~ .material-label,
 .material-input:required:valid ~ .material-label,
 .material-input:optional:not([value=""]) ~ .material-label,
-.material-input.input ~ .material-label {
+.material-input.input ~ .material-label,
+.material-input:read-only ~ .material-label {
     top: -20px;
     font-size: 14px;
     color: #0062cc;
 }
 
-.material-input.empty-input ~ .material-label {
+.material-input.empty-input ~ .material-label,
+.material-input[type="password"].disabled ~ .material-label {
     top: 10px;
     color: #999;
     font-size: 18px;
@@ -862,43 +864,27 @@ pre {
 /* Todo Bar */
 .done-progress-bar {
     background-color: #28a745;
-    border-right: 1px #dee2e6;
-    animation: bar 2s ease-in;
+    border-right: 1.5px solid #dee2e6;
+    transition: width 2s ease-in;
 }
 
 .doing-progress-bar {
     background-color: #0062cc;
-    border-right: 1px solid #dee2e6;
-    animation: bar 2s ease-in;
+    border-right: 1.5px solid #dee2e6;
+    transition: width 2s ease-in;
 }
 
 .done-important-progress-bar {
     background-color: #a7288a;
-    border-right: 1px solid #dee2e6;
-    animation: bar 2s ease-in ;
+    border-right: 1.5px solid #dee2e6;
+    transition: width 2s ease-in;
 }
 
 .doing-important-progress-bar {
     background-color: #cc6a00;
-    animation: bar 2s ease-in;
+    transition: width 2s ease-in;
 }
 
-@keyframes bar {
-    0% {
-        opacity: 0;
-        max-width: 0
-    }
-
-    1% {
-        opacity: 1;
-        max-width: 0
-    }
-
-    100% {
-        opacity: 1;
-        max-width: 100%
-    } 
-}
 
 .progress-bar-label {
     display: table-cell;
@@ -920,6 +906,21 @@ ol{
     margin: 0;
     display: flex;
     transition: height ease-in-out 3s;
+}
+
+/* Account modal */
+#profileModal .modal-confirm {
+    width: 430px;
+}
+
+#profileModal .modal-dialog {
+    max-width: 430px;
+}
+
+#profileModal form {
+    margin: auto;
+    max-width: 330px;
+    padding: 10px
 }
 
 

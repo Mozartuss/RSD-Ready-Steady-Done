@@ -133,7 +133,7 @@ namespace TodoWebProjekt.Test
             controller.ModelState.AddModelError("Title", "Required");
 
             // Act
-            var result = await controller.Edit(TodoControllerHelper.GetFileTaskViewModel(), null);
+            var result = await controller.Edit(TodoControllerHelper.GetFileTaskViewModel());
 
 
             // Assert
@@ -152,7 +152,7 @@ namespace TodoWebProjekt.Test
             using var controller = new TodoController(mockRepo.Object, _authorizationService);
 
             // Act
-            var result = await controller.Edit(TodoControllerHelper.GetFileTaskViewModel(), It.IsAny<IFormFile>());
+            var result = await controller.Edit(TodoControllerHelper.GetFileTaskViewModel());
 
             // Assert
             Assert.IsType<BadRequestResult>(result);
@@ -169,8 +169,7 @@ namespace TodoWebProjekt.Test
             using var controller = new TodoController(mockRepo.Object, _authorizationService);
 
             // Act
-            var result = await controller.Edit(TodoControllerHelper.GetFileTaskViewModel(),
-                TodoControllerHelper.GetMockImage());
+            var result = await controller.Edit(TodoControllerHelper.GetFileTaskViewModel());
 
             // Assert
             Assert.IsType<BadRequestResult>(result);
@@ -186,7 +185,7 @@ namespace TodoWebProjekt.Test
             using var controller = new TodoController(mockRepo.Object, _authorizationService);
 
             // Act
-            var result = await controller.Edit(TodoControllerHelper.GetFileTaskViewModel(), null);
+            var result = await controller.Edit(TodoControllerHelper.GetFileTaskViewModel());
 
             // Assert
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);

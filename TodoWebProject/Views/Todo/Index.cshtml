@@ -84,7 +84,7 @@ else
             <div class="modal-body text-center">
                 <h4>Awesome !</h4>
                 <p>your email address has been successfully verified !</p>
-                <button class="btn btn-modal-confirm"  data-dismiss="modal"><span>Start Exploring</span> <i class="fa fa-angle-right"></i></button>
+                <button class="btn btn-modal-confirm" data-dismiss="modal"><span>Start Exploring</span> <i class="fa fa-angle-right"></i></button>
             </div>
         </div>
     </div>
@@ -133,6 +133,9 @@ else
     <script type="text/javascript" defer src="~/js/Index.js"></script>
     <script type="text/javascript" defer src="~/js/CreateEdit.js"></script>
     <script type="text/javascript" defer src="~/js/Details.js"></script>
+    <script type="text/javascript" src="~/js/RegisterProfile.js"></script>
+
+    <partial name="_ValidationScriptsPartial" />
 
     @if (TempData["IsEmailSent"] != null && (bool)TempData["IsEmailSent"])
     {

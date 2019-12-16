@@ -1,9 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ProfilePicture.cs" company="AraCom IT Services AG">
+// Copyright (c) AraCom IT Services AG. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System.ComponentModel.DataAnnotations;
 
 namespace TodoWebProjekt.Models
 {
     /// <summary>
-    /// The table which contains the user Profile picture
+    /// The table which contains the user Profile picture.
     /// </summary>
     public class ProfilePicture
     {

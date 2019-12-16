@@ -8,6 +8,7 @@
         success: function (data) {
             $('#modal-placeholder').html(data);
             $('#modal-placeholder > #profileModal').modal('show');
+            checkProvider();
         }
     });
 };

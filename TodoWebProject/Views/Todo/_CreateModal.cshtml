@@ -1,5 +1,5 @@
 ﻿@model TodoWebProjekt.ViewModel.FileTaskViewModel
-@inject UserManager<ApplicationUser> UserManager
+@inject UserManager<ApplicationUser> userManager
 
 
 <div id="createModal" class="modal fade" role="dialog">
@@ -14,7 +14,7 @@
             </div>
             <div class="modal-body">
                 <form id="CreateForm" enctype="multipart/form-data" class="needs-validation" asp-action="Create" onsubmit="AddTask(this);return false;">
-                    <input type="hidden" value="@UserManager.GetUserAsync(User).Result?.FullName" id="userName" />
+                    <input type="hidden" value="@userManager.GetUserAsync(User).Result?.FullName" id="userName" />
 
                     <!--Title-->
                     <div class="material-group">
@@ -83,7 +83,4 @@
 
 @section Scripts {
     <script type="text/javascript" src="~/js/CreateEdit.js"></script>
-
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-
 }

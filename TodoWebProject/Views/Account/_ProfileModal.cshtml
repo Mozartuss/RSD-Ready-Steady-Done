@@ -14,7 +14,9 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color:#757575; opacity:1">&times;</button>
             </div>
             <div class="modal-body" style="padding: 0">
-                <form method="post" enctype="multipart/form-data" role="form" class="text-center needs-validation" id="contact_form" style="padding: 0;">
+                <form method="post" enctype="multipart/form-data" class="text-center needs-validation" id="contactForm" style="padding: 0;" onsubmit="UpdateProfile(this);return false;">
+                    <input id="provider" type="hidden" value="@Model.Provider" />
+                    <input id="id" type="hidden" asp-for="Id" />
                     @if (Model.ProfilePicture != null && Model.ProfilePicture.Image != null)
                     {
                         <label>
@@ -42,21 +44,23 @@
                             <input asp-for="FirstName" id="FirstName" class="material-input" autocomplete="off" required>
                             <div class="material-bar"></div>
                             <label class="material-label">First Name</label>
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
                         </div>
-                        <span asp-validation-for="FirstName" class="text-danger"></span>
+
 
                         <!-- Last name -->
                         <div class="col material-group">
                             <input asp-for="LastName" id="LastName" class="material-input" autocomplete="off" required>
                             <div class="material-bar"></div>
                             <label class="material-label">Last Name</label>
+                            <span asp-validation-for="LastName" class="text-danger"></span>
                         </div>
-                        <span asp-validation-for="LastName" class="text-danger"></span>
+
                     </div>
 
                     <!-- Mobile -->
                     <div class="mt-4 material-group">
-                        <input asp-for="Mobile" id="Mobile" type="tel" class="material-input" autocomplete="off">
+                        <input asp-for="Mobile" id="Mobile" type="tel" class="material-input" autocomplete="off" onkeyup="this.setAttribute('value', this.value);">
                         <div class="material-bar"></div>
                         <label class="material-label">Mobile number</label>
                     </div>
@@ -64,7 +68,7 @@
 
                     <!-- Email -->
                     <div class="mt-4 material-group">
-                        <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="off" required />
+                        <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="off" required onkeyup="this.setAttribute('value', this.value);" />
                         <div class="material-bar"></div>
                         <label class="material-label">E-Mail</label>
                     </div>
@@ -106,3 +110,4 @@
         </div>
     </div>
 </div>
+

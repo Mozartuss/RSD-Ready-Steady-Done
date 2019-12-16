@@ -123,8 +123,6 @@ namespace TodoWebProjekt.Repository
         public async Task<ProfilePicture> GetProfilePicture(string id)
         {
             return await _context.ProfilePictures.FirstOrDefaultAsync(t => t.UserId == id).ConfigureAwait(true);
-            
-            
         }
 
         /// <inheritdoc/>
@@ -166,7 +164,11 @@ namespace TodoWebProjekt.Repository
             }
 
             var task = _context.Task.Find(id);
-            if(task == null) return null;
+            if (task == null)
+            {
+                return null;
+            }
+
             var file = _context.File.FirstOrDefault(t => t.TaskId == id);
             var users = _context.ApplicationUser.OrderBy(c => c.UserName)
                 .Select(x => new { x.Id, Value = x.FullName })

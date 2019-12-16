@@ -38,12 +38,12 @@ namespace TodoWebProjekt.Authorization
         /// <summary>
         /// The active badge.
         /// </summary>
-        public static readonly string Active = "";
+        public static readonly string Active = string.Empty;
 
         /// <summary>
         /// The done badge.
         /// </summary>
-        public static readonly string Done = "";
+        public static readonly string Done = string.Empty;
 
         /// <summary>
         /// The important badge.

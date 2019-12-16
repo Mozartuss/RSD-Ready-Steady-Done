@@ -96,7 +96,6 @@ namespace TodoWebProjekt
 
                     googleOptions.ClaimActions.MapJsonKey("profilePicture", "picture", "url");
                     googleOptions.SaveTokens = true;
-
                 })
                 .AddTwitter(twitterOptions =>
                 {

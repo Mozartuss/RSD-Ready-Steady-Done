@@ -6,7 +6,7 @@
 
 
 
-    <form method="post" enctype="multipart/form-data" role="form" class="text-center needs-validation" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;" id="contact_form">
+    <form method="post" enctype="multipart/form-data" role="form" class="text-center needs-validation" style="margin: auto; max-width: 330px; width: 100%;" id="contact_form">
         <p class="h4 mb-4">Sign up</p>
 
         <label style="cursor:pointer">
@@ -20,22 +20,24 @@
             <!--First name-->
 
             <div class="col material-group">
-                <input asp-for="FirstName" id="FirstName" class="material-input" autocomplete="off">
+                <input asp-for="FirstName" id="FirstName" class="material-input" autocomplete="off" required>
                 <div class="material-bar"></div>
                 <label class="material-label">First Name</label>
+                <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
-            <span asp-validation-for="FirstName" class="text-danger"></span>
+            
 
 
 
             <!--Last name-->
 
             <div class="col material-group">
-                <input asp-for="LastName" id="LastName" class="material-input" autocomplete="off">
+                <input asp-for="LastName" id="LastName" class="material-input" autocomplete="off" required>
                 <div class="material-bar"></div>
                 <label class="material-label">Last Name</label>
+                <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
-            <span asp-validation-for="LastName" class="text-danger"></span>
+            
 
 
         </div>
@@ -44,7 +46,7 @@
         <!--Email-->
 
         <div class="mt-4 material-group">
-            <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="new-email" />
+            <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="new-email" required />
             <div class="material-bar"></div>
             <label class="material-label">E-Mail</label>
         </div>
@@ -61,11 +63,6 @@
         <span asp-validation-for="Password" class="text-danger"></span>
 
         <!--Confirm Password-->
-
-        <div class="mt-4">
-
-        </div>
-
 
         <div class="mt-4 material-group">
             <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="material-input" required autocomplete="new-user">

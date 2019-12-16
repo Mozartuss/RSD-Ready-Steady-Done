@@ -41,6 +41,9 @@ namespace TodoWebProjekt.Models
         /// </summary>
         public DateTime Created { get; set; }
 
+        /// <summary>
+        /// Gets or sets the profile picture.
+        /// </summary>
         public ProfilePicture ProfilePicture { get; set; }
     }
 }

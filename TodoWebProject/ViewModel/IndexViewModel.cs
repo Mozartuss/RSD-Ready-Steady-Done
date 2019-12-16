@@ -24,12 +24,24 @@ namespace TodoWebProjekt.ViewModel
         /// </summary>
         public int Length { get; set; }
 
+        /// <summary>
+        /// Gets or sets the NotImportentDoingPercent.
+        /// </summary>
         public string NotImportentDoingPercent { get; set; }
 
+        /// <summary>
+        /// Gets or sets the NotImportentDonePercent.
+        /// </summary>
         public string NotImportentDonePercent { get; set; }
 
+        /// <summary>
+        /// Gets or sets the ImportentDoingPercent.
+        /// </summary>
         public string ImportentDoingPercent { get; set; }
 
+        /// <summary>
+        /// Gets or sets the ImportentDonePercent.
+        /// </summary>
         public string ImportentDonePercent { get; set; }
     }
 }

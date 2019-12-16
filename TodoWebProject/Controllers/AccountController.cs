@@ -58,6 +58,7 @@ namespace TodoWebProjekt.Controllers
         /// <summary>
         /// Gets the register view.
         /// </summary>
+        /// <param name="returnUrl"> Go back to given URL. </param>
         /// <returns> The register view. </returns>
         public IActionResult Register(string returnUrl)
         {
@@ -67,7 +68,6 @@ namespace TodoWebProjekt.Controllers
             };
             return View(model);
         }
-
 
         /// <summary>
         /// The post register process, add a new registered user default to the uer rolle.
@@ -378,6 +378,7 @@ namespace TodoWebProjekt.Controllers
                                 Created = DateTime.Now,
                             };
                         }
+
                         registerResult = await _userManager.CreateAsync(user);
 
                         if (registerResult.Succeeded)
@@ -487,7 +488,7 @@ namespace TodoWebProjekt.Controllers
             var currentUserClaims = await _userManager.GetClaimsAsync(currentUser).ConfigureAwait(true);
             var currentUserRoles = await _userManager.GetRolesAsync(currentUser).ConfigureAwait(true);
             var currentProfilePic = await _context.ProfilePictures.FirstOrDefaultAsync(p => p.UserId == id);
-            var provider = User.FindFirst(ClaimTypes.AuthenticationMethod) != null ? User.FindFirst(ClaimTypes.AuthenticationMethod).Value : null;
+            var provider = User.FindFirst(ClaimTypes.AuthenticationMethod)?.Value;
 
             if (currentUser != await _userManager.GetUserAsync(User).ConfigureAwait(true))
             {

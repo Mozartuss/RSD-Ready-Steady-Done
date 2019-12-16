@@ -520,7 +520,7 @@ body {
 
 /* Password meter */
 .pass-wrapper {
-    width: 310px
+    width: 330px
 }
 
 /* Table check and uncheck button */
@@ -652,6 +652,7 @@ tr:not(:first-child) {
 
 #searchString {
     border-color: #6c757d;
+    width: inherit;
 }
 
 #clear, #searchString {
@@ -695,7 +696,7 @@ tr:not(:first-child) {
 
 .material-input:focus ~ .material-label,
 .material-input:required:valid ~ .material-label,
-.material-input:optional:not([value=""]) ~ .material-label,
+.material-input[value]:optional:not([value=""]) ~ .material-label,
 .material-input.input ~ .material-label,
 .material-input:read-only ~ .material-label {
     top: -20px;
@@ -923,5 +924,10 @@ ol{
     padding: 10px
 }
 
+.searchField {
+    display: flex;
+    width: 277px;
+
+}
 
 

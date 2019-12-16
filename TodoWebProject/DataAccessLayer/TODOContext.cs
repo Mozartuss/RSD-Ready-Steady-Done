@@ -51,6 +51,7 @@ namespace TodoWebProjekt.Models
         /// </summary>
         public DbSet<ProfilePicture> ProfilePictures { get; set; }
 
+        /// <inheritdoc/>
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<ApplicationUser>()

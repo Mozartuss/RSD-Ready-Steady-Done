@@ -4,7 +4,7 @@
     ViewData["Title"] = "Register";
 }
 
-    <form method="post" class="text-center" style="margin: auto; max-width: 330px; padding: 10px; width: 100%;">
+    <form method="post" class="text-center" style="margin: auto; max-width: 330px; width: 100%;">
         <div asp-validation-summary="All" class="text-danger"></div>
 
         <p class="h4 my-4">Sign in</p>
@@ -21,7 +21,7 @@
 
         <!--Password-->
 
-        <div class="my-4 material-group">
+        <div class="mt-4 material-group">
             <input asp-for="Password" type="password" id="Password" class="material-input" autocomplete="new-password" required>
             <div class="material-bar"></div>
             <label class="material-label">Password</label>
@@ -30,7 +30,7 @@
 
         <!--Admin?-->
 
-        <div class="custom-control custom-switch mb-3">
+        <div class="custom-control custom-switch my-4">
             <input asp-for="RememberMe" type="checkbox" class="custom-control-input" id="rememberMe" checked>
             <label class="custom-control-label" for="rememberMe">Remember me</label>
         </div>

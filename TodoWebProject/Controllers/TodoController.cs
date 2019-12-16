@@ -33,6 +33,7 @@ namespace TodoWebProjekt.Controllers
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly ITodoRepository _todoRepository;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TodoController"/> class.
         /// </summary>
@@ -234,7 +235,6 @@ namespace TodoWebProjekt.Controllers
         /// Create a new Todod entry in the Database.
         /// </summary>
         /// <param name="model"> The view mode where the data-table and the image-table come to gether. </param>
-        /// <param name="image"> The image input filehandler. </param>
         /// <returns> If all gone right you will be redirected to the Index view. </return>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -331,7 +331,6 @@ namespace TodoWebProjekt.Controllers
         /// The Post Edit methode which is called if you submit the changes.
         /// </summary>
         /// <param name="model"> The View Model where diffrent models and parameters are listed. </param>
-        /// <param name="uploadImage"> The Image input from the edit page. </param>
         /// <returns> If all gone right you will be redirected back to the index view. </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]

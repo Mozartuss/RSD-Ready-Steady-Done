@@ -1,12 +1,21 @@
-﻿$(document).ready(function () {
-    $('#myPassword').password({
-        field: '#FirstName',
-        filed: '#LastName',
-        minimumLength: 6,
-        fieldPartialMatch: true,
-        animate: true,
-    });
-});
+﻿function checkProvider() {
+    var pro = document.getElementById("provider").value
+    if (pro) {
+        $("#PasswordConfirmation").prop("disabled", true).addClass("disabled");
+        $("#CurrentPassword").prop("disabled", true).addClass("disabled");
+        $("#myPassword").prop("disabled", true).addClass("disabled");
+        $("#Email").prop("readonly", true);
+    } else {
+
+        $('#myPassword').password({
+            field: '#FirstName',
+            filed: '#LastName',
+            minimumLength: 6,
+            fieldPartialMatch: true,
+            animate: true,
+        });
+    }
+}
 
 
 function readURL(input) {
@@ -21,10 +30,31 @@ function readURL(input) {
 
 
 function reqiredOldConfirm() {
-    var ip = $("#myPassword").val;
-    if (ip != null) {
+    var pw = $("#myPassword").val;
+    if (pw != null) {
         $("#PasswordConfirmation").prop("required", true);
         $("#CurrentPassword").prop("required", true);
     }
+}
+
+async function UpdateProfile(oFormElement) {
+    const d = new FormData(oFormElement);
+    $.ajax({
+        type: "post",
+        url: "/Account/Profile",
+        contentType: false,
+        processData: false,
+        data: d,
+        success: function (result) {
+            if (result.status === "failure") {
+                $.each(result.formErrors, function () {
+                    $(`#contactForm [data-valmsg-for="${this.key}"]`).html(this.errors.join());
+                });
+            }
+            if (result.status === "success") {
+                $('#profileModal').modal('hide');
+            }
+        }
+    });
 }
 

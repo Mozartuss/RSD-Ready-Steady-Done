@@ -1,6 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Moq;
 using TodoWebProjekt.Controllers;
 using TodoWebProjekt.Email;
@@ -30,12 +31,12 @@ namespace TodoWebProjekt.Test
             var result = await controller.Login(It.IsAny<LoginViewModel>());
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.IsType<SerializableError>(badRequestResult.Value);
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.False(viewResult.ViewData.ModelState.IsValid);
         }
 
         [Fact]
-        public void Task_Login_Return_BadRequest_InvalidLoginAttempt()
+        public async System.Threading.Tasks.Task Task_Login_Return_BadRequest_InvalidLoginAttempt()
         {
             // Arrange
             using var controller = new AccountController(AccountConttrollerHelper.GetMockUserManager().Object,
@@ -45,17 +46,14 @@ namespace TodoWebProjekt.Test
             new Mock<TODOContext>().Object);
 
             // Act
-            var result = controller.Login((string)null);
+            var result = await controller.Login((LoginViewModel)null);
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var valueSerializable = (SerializableError)badRequestResult.Value;
-            var errorMessageDict = valueSerializable.FirstOrDefault();
+            var viewResult = Assert.IsType<ViewResult>(result);
+            KeyValuePair<string, ModelStateEntry> errorMessage = viewResult.ViewData.ModelState.FirstOrDefault();
 
-            if (errorMessageDict.Value is string[] errorMessage)
-            {
-                Assert.Equal("Invalid Login Attempt", errorMessage.GetValue(0));
-            }
+            Assert.Equal("Invalid Login Attempt", errorMessage.Value.Errors[0].ErrorMessage);
+
         }
 
         [Fact]

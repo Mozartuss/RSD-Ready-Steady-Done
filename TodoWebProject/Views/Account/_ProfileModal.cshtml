@@ -41,7 +41,7 @@
                     <div class="form-row mt-2">
                         <!-- First name -->
                         <div class="col material-group">
-                            <input asp-for="FirstName" id="FirstName" class="material-input" autocomplete="off" required>
+                            <input asp-for="FirstName" id="FirstName" class="material-input" autocomplete="off" required >
                             <div class="material-bar"></div>
                             <label class="material-label">First Name</label>
                             <span asp-validation-for="FirstName" class="text-danger"></span>
@@ -50,7 +50,7 @@
 
                         <!-- Last name -->
                         <div class="col material-group">
-                            <input asp-for="LastName" id="LastName" class="material-input" autocomplete="off" required>
+                            <input asp-for="LastName" id="LastName" class="material-input" autocomplete="off" required >
                             <div class="material-bar"></div>
                             <label class="material-label">Last Name</label>
                             <span asp-validation-for="LastName" class="text-danger"></span>
@@ -60,7 +60,7 @@
 
                     <!-- Mobile -->
                     <div class="mt-4 material-group">
-                        <input asp-for="Mobile" id="Mobile" type="tel" class="material-input" autocomplete="off" onkeyup="this.setAttribute('value', this.value);">
+                        <input asp-for="Mobile" id="Mobile" type="tel" class="material-input" autocomplete="off" oninput="checkInput(this);">
                         <div class="material-bar"></div>
                         <label class="material-label">Mobile number</label>
                     </div>
@@ -68,7 +68,7 @@
 
                     <!-- Email -->
                     <div class="mt-4 material-group">
-                        <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="off" required onkeyup="this.setAttribute('value', this.value);" />
+                        <input asp-for="Email" type="email" id="Email" class="material-input" autocomplete="off" required/>
                         <div class="material-bar"></div>
                         <label class="material-label">E-Mail</label>
                     </div>
@@ -76,7 +76,7 @@
 
                     <!-- Old password -->
                     <div class="mt-4 material-group">
-                        <input asp-for="OldPassword" type="password" id="CurrentPassword" class="material-input" autocomplete="new-user">
+                        <input asp-for="OldPassword" type="password" id="CurrentPassword" class="material-input" autocomplete="new-user" oninput="checkInput(this);">
                         <div class="material-bar"></div>
                         <label class="material-label">Current password</label>
                     </div>
@@ -84,15 +84,15 @@
 
                     <!-- New password -->
                     <div class="mt-4 material-group">
-                        <input asp-for="Password" type="password" id="myPassword" class="material-input" autocomplete="new-password" onchange="reqiredOldConfirm();">
+                        <input asp-for="Password" type="password" id="myPassword" class="material-input" autocomplete="new-password" oninput="reqiredOldConfirm(); checkInput(this);">
                         <div class="material-bar" style="margin-bottom:5px"></div>
-                        <label class="material-label">Password</label>
+                        <label class="material-label">New password</label>
                     </div>
                     <span asp-validation-for="Password" class="text-danger"></span>
 
                     <!-- Confirm Password -->
                     <div class="mt-4 material-group">
-                        <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="material-input" autocomplete="new-user">
+                        <input asp-for="ConfirmPassword" type="password" id="PasswordConfirmation" class="material-input" autocomplete="new-user" oninput="checkInput(this);">
                         <div class="material-bar"></div>
                         <label class="material-label">Confirm password</label>
                     </div>

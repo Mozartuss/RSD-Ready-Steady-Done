@@ -221,7 +221,7 @@ namespace TodoWebProjekt.Repository
         /// <inheritdoc/>
         public async Task<int> Update(FileTaskViewModel fileTaskViewModel)
         {
-            var result = 0;
+            var result = -1;
             if (fileTaskViewModel == null)
             {
                 return result;

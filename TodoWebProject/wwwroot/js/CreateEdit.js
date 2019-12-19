@@ -40,7 +40,6 @@ function readURL(input) {
 
         reader.onload = function (e) {
             var imagepath = e.target.result;
-            console.log(imagepath);
             $('.image-upload-wrap').hide();
             $('.file-upload-image').attr('src', imagepath);
             $('.file-upload-content').show();
@@ -131,7 +130,6 @@ async function AddTask(oFormElement) {
         success: function (result) {
             if (result.status === "failure") {
                 $.each(result.formErrors, function () {
-                    console.log(this.key + " " + zhis.errors.join());
                     $(`#CreateForm [data-valmsg-for="${this.key}"]`).html(this.errors.join());
                 });
             }

@@ -208,12 +208,17 @@ namespace TodoWebProjekt.Controllers
         {
             if (id == null)
             {
-                return BadRequest();
+                return BadRequest("The ID is null!");
             }
 
             var details = await _todoRepository.GetFileTaskViewModel(id).ConfigureAwait(true);
-            details.AuthorProfilePicture = await _todoRepository.GetProfilePicture(details.Task.UserId);
-            return details == null ? NotFound() : (IActionResult)PartialView("_DetailsModal", details);
+            if (details != null)
+            {
+                details.AuthorProfilePicture = await _todoRepository.GetProfilePicture(details.Task.UserId);
+                return PartialView("_DetailsModal", details);
+            }
+
+            return NotFound();
         }
 
         /// <summary>
@@ -242,10 +247,10 @@ namespace TodoWebProjekt.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new
+                return Json(new JsonErrorModel
                 {
                     status = "failure",
-                    formErrors = ModelState.Select(kvp => new
+                    formErrors = ModelState.Select(kvp => new ErrorModel
                     {
                         key = kvp.Key,
                         errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
@@ -259,10 +264,10 @@ namespace TodoWebProjekt.Controllers
                 {
                     ModelState.AddModelError("UploadeImage", "This file is not an image");
 
-                    return Json(new
+                    return Json(new JsonErrorModel
                     {
                         status = "failure",
-                        formErrors = ModelState.Select(kvp => new
+                        formErrors = ModelState.Select(kvp => new ErrorModel
                         {
                             key = kvp.Key,
                             errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
@@ -295,7 +300,7 @@ namespace TodoWebProjekt.Controllers
 
             var taskId = await _todoRepository.AddFileTask(model).ConfigureAwait(true);
 
-            return taskId > 0 ? Json(new { status = "success" }) : (IActionResult)NotFound();
+            return taskId > 0 ? Json(new JsonErrorModel { status = "success" }) : (IActionResult)NotFound();
         }
 
         /// <summary>
@@ -338,10 +343,10 @@ namespace TodoWebProjekt.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new
+                return Json(new JsonErrorModel
                 {
                     status = "failure",
-                    formErrors = ModelState.Select(kvp => new
+                    formErrors = ModelState.Select(kvp => new ErrorModel
                     {
                         key = kvp.Key,
                         errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
@@ -351,7 +356,16 @@ namespace TodoWebProjekt.Controllers
 
             if (model == null)
             {
-                return RedirectToAction("Index");
+                ModelState.AddModelError("Task", "Sorry, your changes have been lost.");
+                return Json(new JsonErrorModel
+                {
+                    status = "failure",
+                    formErrors = ModelState.Select(kvp => new ErrorModel
+                    {
+                        key = kvp.Key,
+                        errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                    }),
+                });
             }
 
             if (model.EmptyImage)
@@ -362,12 +376,12 @@ namespace TodoWebProjekt.Controllers
                     var del = _todoRepository.DeleteFile(file);
                     if (!del)
                     {
-                        ModelState.AddModelError("UploadeImage", "Not able to delete the Image");
+                        ModelState.AddModelError("UploadeImage", "Not able to delete the Image.");
 
-                        return Json(new
+                        return Json(new JsonErrorModel
                         {
                             status = "failure",
-                            formErrors = ModelState.Select(kvp => new
+                            formErrors = ModelState.Select(kvp => new ErrorModel
                             {
                                 key = kvp.Key,
                                 errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
@@ -381,6 +395,21 @@ namespace TodoWebProjekt.Controllers
             {
                 if (model != null)
                 {
+                    if (model.UploadImage.ContentType.IndexOf("image", StringComparison.OrdinalIgnoreCase) < 0)
+                    {
+                        ModelState.AddModelError("UploadeImage", "This file is not an image");
+
+                        return Json(new JsonErrorModel
+                        {
+                            status = "failure",
+                            formErrors = ModelState.Select(kvp => new ErrorModel
+                            {
+                                key = kvp.Key,
+                                errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
+                            }),
+                        });
+                    }
+
                     var file = model.File;
                     if (file != null)
                     {
@@ -416,12 +445,12 @@ namespace TodoWebProjekt.Controllers
                     var entityState = _todoRepository.AddFile(file);
                     if (entityState == EntityState.Detached)
                     {
-                        ModelState.AddModelError("UploadeImage", "This file is not an image");
+                        ModelState.AddModelError("UploadeImage", "Image uploade failed.");
 
-                        return Json(new
+                        return Json(new JsonErrorModel
                         {
                             status = "failure",
-                            formErrors = ModelState.Select(kvp => new
+                            formErrors = ModelState.Select(kvp => new ErrorModel
                             {
                                 key = kvp.Key,
                                 errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
@@ -436,13 +465,13 @@ namespace TodoWebProjekt.Controllers
             model.Task.ImportanceStatus = model.Important ? "Important" : string.Empty;
 
             var result = await _todoRepository.Update(model).ConfigureAwait(true);
-            if (result == 0)
+            if (result < 0)
             {
                 ModelState.AddModelError("Task", "Failed to update the task!");
-                return Json(new
+                return Json(new JsonErrorModel
                 {
                     status = "failure",
-                    formErrors = ModelState.Select(kvp => new
+                    formErrors = ModelState.Select(kvp => new ErrorModel
                     {
                         key = kvp.Key,
                         errors = kvp.Value.Errors.Select(e => e.ErrorMessage),
@@ -450,7 +479,7 @@ namespace TodoWebProjekt.Controllers
                 });
             }
 
-            return Json(new { status = "success" });
+            return Json(new JsonErrorModel { status = "success" });
         }
 
         /// <summary>

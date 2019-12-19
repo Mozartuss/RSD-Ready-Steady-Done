@@ -9,6 +9,10 @@
             $('#modal-placeholder').html(data);
             $('#modal-placeholder > #profileModal').modal('show');
             checkProvider();
+            var inputs = $(".material-input:optional")
+            for (var i in inputs) {
+                checkInput(inputs[i]);
+            }
         }
     });
 };

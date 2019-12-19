@@ -55,19 +55,17 @@ html {
 }
 
 body {
-    margin-bottom: 60px;
     font-family: 'Montserrat', sans-serif;
 }
 
 .footer {
     bottom: 0;
-    line-height: 60px; 
+    line-height: 60px;
     white-space: nowrap;
     position: fixed;
     bottom: 0;
     width: 100%;
     background-color: #fff;
-
 }
 
 .center {
@@ -696,7 +694,6 @@ tr:not(:first-child) {
 
 .material-input:focus ~ .material-label,
 .material-input:required:valid ~ .material-label,
-.material-input[value]:optional:not([value=""]) ~ .material-label,
 .material-input.input ~ .material-label,
 .material-input:read-only ~ .material-label {
     top: -20px;
@@ -704,8 +701,8 @@ tr:not(:first-child) {
     color: #0062cc;
 }
 
-.material-input.empty-input ~ .material-label,
-.material-input[type="password"].disabled ~ .material-label {
+.material-input.empty ~ .material-label,
+.material-input.disabled ~ .material-label {
     top: 10px;
     color: #999;
     font-size: 18px;
@@ -903,7 +900,7 @@ pre {
     border-radius: 50%;
 }
 
-ol{
+ol {
     margin: 0;
     display: flex;
     transition: height ease-in-out 3s;
@@ -927,7 +924,10 @@ ol{
 .searchField {
     display: flex;
     width: 277px;
-
 }
 
-
+.admin {
+    padding: .375rem .75rem;
+    vertical-align: middle;
+    display: inline-block;
+}

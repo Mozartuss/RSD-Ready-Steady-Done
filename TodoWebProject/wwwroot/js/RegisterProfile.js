@@ -57,4 +57,13 @@ async function UpdateProfile(oFormElement) {
         }
     });
 }
+function checkInput(e) {
+    var i = e.value;
+    var x = $(e).attr("id");
+    if (i.trim()) {
+        $(`#${x}`).addClass("input");
+    } else {
+        $(`#${x}`).removeClass("input");
+    }
+};
 

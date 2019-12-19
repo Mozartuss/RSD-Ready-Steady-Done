@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MockQueryable.Moq;
@@ -31,30 +32,82 @@ namespace TodoWebProjekt.Test.Helper
                 new Claim("custom-claim", "example claim value")
             }, "mock"));
 
-            var userList = new List<ClaimsPrincipal> {user1, user2};
+            var userList = new List<ClaimsPrincipal> { user1, user2 };
 
             var mockSet = userList.AsQueryable().BuildMockDbSet();
 
             var users = mockSet.Object.OrderBy(c => c.Identity.Name)
-                .Select(x => new {Id = x.FindFirstValue(ClaimTypes.NameIdentifier), Value = x.Identity.Name})
+                .Select(x => new { Id = x.FindFirstValue(ClaimTypes.NameIdentifier), Value = x.Identity.Name })
                 .Where(x => x.Id != "ddc052bc-70e5-462e-a071-b932ba54909e");
             return new SelectList(users, "Id", "Value");
         }
 
         public static FileTaskViewModel GetFileTaskViewModel()
         {
+            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("dummy image")), 0, 1000, "Data", "image.png")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image"
+            };
             return new FileTaskViewModel
             {
                 Task = new Task
                 {
-                    Title = "Test Eintrag", Description = "Ein Eintrag für einen kleinen Test",
-                    UserId = "90e309f8-da89-4d21-82f7-297bd0a2f378", TaskId = 0
+                    Title = "Test Eintrag",
+                    Description = "Ein Eintrag für einen kleinen Test",
+                    UserId = "90e309f8-da89-4d21-82f7-297bd0a2f378",
+                    TaskId = 0
                 },
                 File = new File
                 {
-                    ContentType = "image/gif", Filename = "NichtRandom", TaskId = 1,
+                    ContentType = "image/gif",
+                    Filename = "NichtRandom",
+                    TaskId = 1,
                     Image = ReadFile("C:\\Users\\lukas.kleybolte\\Pictures\\Forest.gif")
-                }
+                },
+                UploadImage = file
+            };
+        }
+
+        public static FileTaskViewModel GetWrongFileWithFileTaskViewModel()
+        {
+            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("dummy pdf")), 0, 1000, "Data", "image.pdf")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "application/pdf"
+            };
+            return new FileTaskViewModel
+            {
+                Task = new Task
+                {
+                    Title = "Test Eintrag",
+                    Description = "Ein Eintrag für einen kleinen Test",
+                    UserId = "90e309f8-da89-4d21-82f7-297bd0a2f378",
+                    TaskId = 0
+                },
+                UploadImage = file,
+            };
+        }
+
+        public static FileTaskViewModel GetEmptyFileWithFileTaskViewModel()
+        {
+            return new FileTaskViewModel
+            {
+                Task = new Task
+                {
+                    Title = "Test Eintrag",
+                    Description = "Ein Eintrag für einen kleinen Test",
+                    UserId = "90e309f8-da89-4d21-82f7-297bd0a2f378",
+                    TaskId = 0
+                },
+                File = new File
+                {
+                    ContentType = "image/gif",
+                    Filename = "NichtRandom",
+                    TaskId = 1,
+                    Image = ReadFile("C:\\Users\\lukas.kleybolte\\Pictures\\Forest.gif")
+                },
+                EmptyImage = true,
             };
         }
 
@@ -64,7 +117,7 @@ namespace TodoWebProjekt.Test.Helper
             var numBytes = fInfo.Length;
             var fStream = new FileStream(sPath, FileMode.Open, FileAccess.Read);
             using var br = new BinaryReader(fStream);
-            var data = br.ReadBytes((int) numBytes);
+            var data = br.ReadBytes((int)numBytes);
             return data;
         }
 

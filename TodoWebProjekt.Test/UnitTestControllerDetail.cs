@@ -28,8 +28,8 @@ namespace TodoWebProjekt.Test
             var result = await controller.Details(id);
 
             //Assert
-            var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<FileTaskViewModel>(viewResult.ViewData.Model);
+            var partialViewResult = Assert.IsType<PartialViewResult>(result);
+            var model = Assert.IsAssignableFrom<FileTaskViewModel>(partialViewResult.ViewData.Model);
 
             Assert.Equal("Test Eintrag", model.Task.Title);
             Assert.Equal("Ein Eintrag für einen kleinen Test", model.Task.Description);
@@ -48,7 +48,8 @@ namespace TodoWebProjekt.Test
             var data = await controller.Details(null);
 
             //Assert
-            Assert.IsType<BadRequestResult>(data);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(data);
+            Assert.Equal("The ID is null!", badRequestResult.Value);
         }
 
         [Fact]
@@ -69,7 +70,7 @@ namespace TodoWebProjekt.Test
         }
 
         [Fact]
-        public async Task Task_GetTodoById_Return_ViewResult()
+        public async Task Task_GetTodoById_Return_PartialViewResult()
         {
             //Arrange
             var mockRepo = new Mock<ITodoRepository>();
@@ -81,7 +82,8 @@ namespace TodoWebProjekt.Test
             var result = await controller.Details(It.IsAny<int>());
 
             //Assert
-            Assert.IsType<ViewResult>(result);
+           var partialViewResult = Assert.IsType<PartialViewResult>(result);
+            Assert.Equal("_DetailsModal", partialViewResult.ViewName);
         }
     }
 }

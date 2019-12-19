@@ -115,7 +115,7 @@ namespace TodoWebProjekt.Test
             //Assert
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
             Assert.Null(redirectToActionResult.ControllerName);
-            Assert.Equal("Index", redirectToActionResult.ActionName);
+            Assert.Equal("LoadTodoList", redirectToActionResult.ActionName);
         }
 
         [Fact]
@@ -148,11 +148,11 @@ namespace TodoWebProjekt.Test
             //Assert
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
             Assert.Equal("Account", redirectToActionResult.ControllerName);
-            Assert.Equal("AccessDenied", redirectToActionResult.ActionName);
+            Assert.Equal("AccountError", redirectToActionResult.ActionName);
         }
 
         [Fact]
-        public async Task Task_Delete_Return_ViewResult_Authorized_User()
+        public async Task Task_Delete_Return_PartialViewResult_Authorized_User()
         {
             //Arrange
 
@@ -181,7 +181,7 @@ namespace TodoWebProjekt.Test
             //Assert
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
             Assert.Null(redirectToActionResult.ControllerName);
-            Assert.Equal("Index", redirectToActionResult.ActionName);
+            Assert.Equal("LoadTodoList", redirectToActionResult.ActionName);
         }
     }
 }

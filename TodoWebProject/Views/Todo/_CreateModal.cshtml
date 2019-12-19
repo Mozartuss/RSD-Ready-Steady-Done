@@ -18,7 +18,7 @@
 
                     <!--Title-->
                     <div class="material-group">
-                        <input asp-for="Task.Title" class="material-input" type="text" id="taskName" autocomplete="off" spellcheck="true" required />
+                        <input asp-for="Task.Title" class="material-input" type="text" id="taskName" autocomplete="off" spellcheck="true" oninput="checkInput(this);" />
                         <span class="material-bar"></span>
                         <label class="material-label">Title</label>
                     </div>
